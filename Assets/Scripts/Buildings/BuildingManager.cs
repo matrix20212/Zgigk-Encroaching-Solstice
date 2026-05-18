@@ -1,0 +1,98 @@
+using UnityEngine;
+
+public class BuildingManager : MonoBehaviour
+{
+    public static BuildingManager Instance;
+
+    [Header("Podgl¹d budynku")]
+    public Material previewMaterialOK;
+    public Material previewMaterialBlock;
+
+    private BuildingData selectedBuilding;
+    private GameObject previewObj;
+    private bool isBuilding = false;
+
+    void Awake() => Instance = this;
+
+    void Update()
+    {
+        if (!isBuilding) return;
+        UpdatePreview();
+        if (Input.GetMouseButtonDown(0)) TryPlace();
+        if (Input.GetMouseButtonDown(1)) CancelBuilding();
+    }
+
+    public void StartBuilding(BuildingData data)
+    {
+        if (ResourceManager.Instance.CanAfford(data.woodCost, data.metalCost) == false)
+        {
+            Debug.Log("Za ma³o surowców!");
+            return;
+        }
+
+        selectedBuilding = data;
+        isBuilding = true;
+
+        previewObj = Instantiate(data.prefab);
+        SetPreviewMaterial(previewObj, previewMaterialOK);
+    }
+
+    void UpdatePreview()
+    {
+        Vector3 worldPos = GetMouseWorldPosition();
+        Vector2Int gridPos = GridManager.Instance.WorldToGrid(worldPos);
+        Vector3 snappedPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
+        previewObj.transform.position = snappedPos;
+
+        bool canPlace = GridManager.Instance.IsAreaFree(
+            gridPos.x, gridPos.y,
+            selectedBuilding.sizeX, selectedBuilding.sizeZ
+        );
+
+        SetPreviewMaterial(previewObj, canPlace ? previewMaterialOK : previewMaterialBlock);
+    }
+
+    void TryPlace()
+    {
+        Vector3 worldPos = GetMouseWorldPosition();
+        Vector2Int gridPos = GridManager.Instance.WorldToGrid(worldPos);
+
+        if (!GridManager.Instance.IsAreaFree(gridPos.x, gridPos.y,
+            selectedBuilding.sizeX, selectedBuilding.sizeZ)) return;
+
+        // Pobierz surowce
+        ResourceManager.Instance.Spend(selectedBuilding.woodCost, selectedBuilding.metalCost);
+
+        // Postaw budynek
+        Vector3 finalPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
+        GameObject building = Instantiate(selectedBuilding.prefab, finalPos, Quaternion.identity);
+        building.AddComponent<BuildingInstance>().Init(selectedBuilding, gridPos.x, gridPos.y);
+
+        GridManager.Instance.OccupyArea(gridPos.x, gridPos.y,
+            selectedBuilding.sizeX, selectedBuilding.sizeZ, building);
+
+        CancelBuilding();
+    }
+
+    public void CancelBuilding()
+    {
+        isBuilding = false;
+        selectedBuilding = null;
+        if (previewObj != null) Destroy(previewObj);
+    }
+
+    Vector3 GetMouseWorldPosition()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Plane plane = new Plane(Vector3.up, Vector3.zero);
+        if (plane.Raycast(ray, out float dist))
+            return ray.GetPoint(dist);
+        return Vector3.zero;
+    }
+
+    void SetPreviewMaterial(GameObject obj, Material mat)
+    {
+        foreach (var r in obj.GetComponentsInChildren<Renderer>())
+            r.material = mat;
+    }
+}
