@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e0e6b597478d83468092f9d6f98b5ff, type: 3}
   m_Name: TartakData
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: 
-  prefab: {fileID: 0}
+  buildingName: Tartak
+  prefab: {fileID: 5030418338674634293, guid: 4ac33879fb946b94089c6ae844bcafb4, type: 3}
   icon: {fileID: 0}
   sizeX: 1
   sizeZ: 1
-  woodCost: 0
-  metalCost: 0
-  maxWorkers: 0
-  producedResource: 0
+  woodCost: 50
+  metalCost: 3
+  maxWorkers: 3
+  producedResource: 1
   productionPerWorkerPerDay: 0
