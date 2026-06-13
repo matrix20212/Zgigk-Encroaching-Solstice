@@ -8,9 +8,13 @@ public class BuildingManager : MonoBehaviour
     public Material previewMaterialOK;
     public Material previewMaterialBlock;
 
+    [Header("Korekta wysokości")]
+    public float heightOffset = 0.05f;
+
     private BuildingData selectedBuilding;
     private GameObject previewObj;
     private bool isBuilding = false;
+    private int currentRotation = 0;
 
     void Awake() => Instance = this;
 
@@ -18,13 +22,17 @@ public class BuildingManager : MonoBehaviour
     {
         if (!isBuilding) return;
         UpdatePreview();
+
+        if (Input.GetKeyDown(KeyCode.R))
+            currentRotation = (currentRotation + 90) % 360;
+
         if (Input.GetMouseButtonDown(0)) TryPlace();
         if (Input.GetMouseButtonDown(1)) CancelBuilding();
     }
 
     public void StartBuilding(BuildingData data)
     {
-        if (ResourceManager.Instance.CanAfford(data.woodCost, data.metalCost) == false)
+        if (!ResourceManager.Instance.CanAfford(data.woodCost, data.metalCost))
         {
             Debug.Log("Za mało surowców!");
             return;
@@ -32,7 +40,6 @@ public class BuildingManager : MonoBehaviour
 
         selectedBuilding = data;
         isBuilding = true;
-
         previewObj = Instantiate(data.prefab);
         SetPreviewMaterial(previewObj, previewMaterialOK);
     }
@@ -42,7 +49,11 @@ public class BuildingManager : MonoBehaviour
         Vector3 worldPos = GetMouseWorldPosition();
         Vector2Int gridPos = GridManager.Instance.WorldToGrid(worldPos);
         Vector3 snappedPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
+
+        snappedPos.y = GetTerrainHeight(snappedPos.x, snappedPos.z) + heightOffset;
+
         previewObj.transform.position = snappedPos;
+        previewObj.transform.rotation = Quaternion.Euler(0f, currentRotation, 0f);
 
         bool canPlace = GridManager.Instance.IsAreaFree(
             gridPos.x, gridPos.y,
@@ -57,26 +68,25 @@ public class BuildingManager : MonoBehaviour
         Vector3 worldPos = GetMouseWorldPosition();
         Vector2Int gridPos = GridManager.Instance.WorldToGrid(worldPos);
 
-        if (!GridManager.Instance.IsAreaFree(gridPos.x, gridPos.y,
+        if (!GridManager.Instance.IsAreaFree(
+            gridPos.x, gridPos.y,
             selectedBuilding.sizeX, selectedBuilding.sizeZ)) return;
 
-        // Pobierz surowce
         ResourceManager.Instance.Spend(selectedBuilding.woodCost, selectedBuilding.metalCost);
 
-        // Postaw budynek
         Vector3 finalPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
+        finalPos.y = GetTerrainHeight(finalPos.x, finalPos.z) + heightOffset;
 
-        finalPos.y = GetTerrainHeight(finalPos.x, finalPos.z);
+        Quaternion finalRotation = Quaternion.Euler(0f, currentRotation, 0f);
+        GameObject building = Instantiate(selectedBuilding.prefab, finalPos, finalRotation);
 
-        GameObject building = Instantiate(selectedBuilding.prefab, finalPos, Quaternion.identity);
+        BuildingInstance bi = building.GetComponent<BuildingInstance>();
+        if (bi == null) bi = building.AddComponent<BuildingInstance>();
 
-        BuildingInstance instance = building.GetComponent<BuildingInstance>();
-        if (instance == null)
-            instance = building.AddComponent<BuildingInstance>();
+        bi.Init(selectedBuilding, gridPos, GridManager.Instance);
 
-        instance.Init(selectedBuilding, gridPos, GridManager.Instance);
-
-        GridManager.Instance.OccupyArea(gridPos.x, gridPos.y,
+        GridManager.Instance.OccupyArea(
+            gridPos.x, gridPos.y,
             selectedBuilding.sizeX, selectedBuilding.sizeZ, building);
 
         CancelBuilding();
@@ -85,7 +95,6 @@ public class BuildingManager : MonoBehaviour
     float GetTerrainHeight(float x, float z)
     {
         Ray ray = new Ray(new Vector3(x, 100f, z), Vector3.down);
-
         if (Physics.Raycast(ray, out RaycastHit hit, 200f))
             return hit.point.y;
 
@@ -100,17 +109,15 @@ public class BuildingManager : MonoBehaviour
     {
         isBuilding = false;
         selectedBuilding = null;
+        currentRotation = 0;
         if (previewObj != null) Destroy(previewObj);
     }
 
     Vector3 GetMouseWorldPosition()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
         if (Physics.Raycast(ray, out RaycastHit hit, 500f))
-        {
             return hit.point;
-        }
 
         Plane plane = new Plane(Vector3.up, new Vector3(0, 2f, 0));
         if (plane.Raycast(ray, out float dist))

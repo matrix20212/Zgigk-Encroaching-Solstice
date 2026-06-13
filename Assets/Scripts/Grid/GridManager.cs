@@ -102,7 +102,7 @@ public class GridManager : MonoBehaviour
     }
 
     // DEBUG
-    void OnDrawGizmosSelected()
+    void OnDrawGizmos()
     {
         Gizmos.color = new Color(1, 1, 1, 0.2f);
         for (int x = 0; x < width; x++)
