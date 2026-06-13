@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e0e6b597478d83468092f9d6f98b5ff, type: 3}
-  m_Name: TartakData
+  m_Name: TowerData
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: Tartak
-  prefab: {fileID: 5030418338674634293, guid: 4ac33879fb946b94089c6ae844bcafb4, type: 3}
+  buildingName: Tower
+  prefab: {fileID: 4421584974866907322, guid: f79b9c6b69840dc45a1716093dc4f11a, type: 3}
   icon: {fileID: 0}
   sizeX: 1
   sizeZ: 1
   size: {x: 1, y: 1}
-  woodCost: 50
+  woodCost: 100
   foodCost: 0
-  metalCost: 11
+  metalCost: 10
   maxHp: 100
-  role: 0
+  role: 1
   producedResource: 0
   productionInterval: 5
-  productionAmount: 10
-  maxWorkers: 3
-  productionPerWorkerPerDay: 2
+  productionAmount: 0
+  maxWorkers: 0
+  productionPerWorkerPerDay: 0
   attackRange: 8
   attackCooldown: 1
   attackDamage: 10
