@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: TartakData
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: Tartak
-  prefab: {fileID: 5030418338674634293, guid: 4ac33879fb946b94089c6ae844bcafb4, type: 3}
+  prefab: {fileID: 6532625109120481640, guid: 911ea62c2bf0d0747bcd11a42a21da8a, type: 3}
   icon: {fileID: 0}
-  sizeX: 1
-  sizeZ: 1
-  size: {x: 1, y: 1}
+  sizeX: 3
+  sizeZ: 3
+  size: {x: 3, y: 3}
   woodCost: 50
   foodCost: 0
   metalCost: 11
@@ -31,3 +31,7 @@ MonoBehaviour:
   attackRange: 8
   attackCooldown: 1
   attackDamage: 10
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 12
+  projectileSpawnHeight: 1.5
+  projectileHitDistance: 0.25
