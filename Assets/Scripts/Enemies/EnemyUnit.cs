@@ -7,16 +7,18 @@ public class EnemyUnit : MonoBehaviour
     [SerializeField] private float attackRange = 1.4f;
     [SerializeField] private int attackDamage = 8;
     [SerializeField] private float attackCooldown = 1.2f;
+    [SerializeField] private float targetRefreshInterval = 0.2f;
 
     private int currentHp;
     private float nextAttackTime;
+    private float nextTargetRefreshTime;
     private BuildingInstance target;
 
     public bool IsAlive => currentHp > 0;
 
     private void Awake()
     {
-        currentHp = maxHp;
+        currentHp = Mathf.Max(1, maxHp);
     }
 
     private void Update()
@@ -24,8 +26,7 @@ public class EnemyUnit : MonoBehaviour
         if (!IsAlive)
             return;
 
-        if (target == null || !target.IsAlive)
-            target = BuildingRegistry.GetNearest(transform.position);
+        RefreshTargetIfNeeded();
 
         if (target == null)
             return;
@@ -34,11 +35,7 @@ public class EnemyUnit : MonoBehaviour
 
         if (distance > attackRange)
         {
-            Vector3 direction = (target.transform.position - transform.position).normalized;
-            transform.position += direction * moveSpeed * Time.deltaTime;
-
-            if (direction != Vector3.zero)
-                transform.rotation = Quaternion.LookRotation(direction);
+            MoveToTarget();
         }
         else
         {
@@ -46,12 +43,38 @@ public class EnemyUnit : MonoBehaviour
         }
     }
 
-    private void TryAttack()
+    private void RefreshTargetIfNeeded()
     {
-        if (Time.time < nextAttackTime || target == null)
+        if (Time.time < nextTargetRefreshTime && target != null && target.IsAlive)
             return;
 
-        nextAttackTime = Time.time + attackCooldown;
+        nextTargetRefreshTime = Time.time + Mathf.Max(0.05f, targetRefreshInterval);
+        target = BuildingRegistry.GetNearest(transform.position);
+    }
+
+    private void MoveToTarget()
+    {
+        if (target == null)
+            return;
+
+        Vector3 direction = target.transform.position - transform.position;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude <= 0.001f)
+            return;
+
+        direction.Normalize();
+
+        transform.position += direction * moveSpeed * Time.deltaTime;
+        transform.rotation = Quaternion.LookRotation(direction);
+    }
+
+    private void TryAttack()
+    {
+        if (Time.time < nextAttackTime || target == null || !target.IsAlive)
+            return;
+
+        nextAttackTime = Time.time + Mathf.Max(0.1f, attackCooldown);
         target.TakeDamage(attackDamage);
     }
 

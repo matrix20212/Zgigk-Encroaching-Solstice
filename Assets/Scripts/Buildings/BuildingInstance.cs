@@ -105,7 +105,7 @@ public class BuildingInstance : MonoBehaviour
             EnemyUnit target = FindTarget();
 
             if (target != null)
-                target.TakeDamage(data.attackDamage);
+                Shoot(target);
 
             yield return new WaitForSeconds(Mathf.Max(0.1f, data.attackCooldown));
         }
@@ -132,6 +132,35 @@ public class BuildingInstance : MonoBehaviour
         }
 
         return nearest;
+    }
+
+    private void Shoot(EnemyUnit target)
+    {
+        Vector3 spawnPosition = transform.position + Vector3.up * data.projectileSpawnHeight;
+        GameObject projectileObject;
+
+        if (data.projectilePrefab != null)
+        {
+            projectileObject = Instantiate(data.projectilePrefab, spawnPosition, Quaternion.identity);
+        }
+        else
+        {
+            projectileObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            projectileObject.transform.position = spawnPosition;
+            projectileObject.transform.localScale = Vector3.one * 0.25f;
+
+            Collider collider = projectileObject.GetComponent<Collider>();
+
+            if (collider != null)
+                Destroy(collider);
+        }
+
+        TowerProjectile projectile = projectileObject.GetComponent<TowerProjectile>();
+
+        if (projectile == null)
+            projectile = projectileObject.AddComponent<TowerProjectile>();
+
+        projectile.Init(target, data.attackDamage, data.projectileSpeed, data.projectileHitDistance);
     }
 
     public void TakeDamage(int damage)

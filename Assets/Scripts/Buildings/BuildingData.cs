@@ -30,6 +30,11 @@ public class BuildingData : ScriptableObject
     public float attackCooldown = 1f;
     public int attackDamage = 10;
 
+    public GameObject projectilePrefab;
+    public float projectileSpeed = 12f;
+    public float projectileSpawnHeight = 1.5f;
+    public float projectileHitDistance = 0.25f;
+
     public Vector2Int GridSize => new Vector2Int(Mathf.Max(1, sizeX), Mathf.Max(1, sizeZ));
 
     private void OnValidate()
@@ -37,8 +42,14 @@ public class BuildingData : ScriptableObject
         sizeX = Mathf.Max(1, sizeX);
         sizeZ = Mathf.Max(1, sizeZ);
         size = new Vector2Int(sizeX, sizeZ);
+
         maxHp = Mathf.Max(1, maxHp);
+
         productionInterval = Mathf.Max(0.1f, productionInterval);
         attackCooldown = Mathf.Max(0.1f, attackCooldown);
+
+        projectileSpeed = Mathf.Max(0.1f, projectileSpeed);
+        projectileSpawnHeight = Mathf.Max(0f, projectileSpawnHeight);
+        projectileHitDistance = Mathf.Max(0.05f, projectileHitDistance);
     }
 }
