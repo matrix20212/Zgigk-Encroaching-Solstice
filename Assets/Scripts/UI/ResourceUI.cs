@@ -33,10 +33,10 @@ public class ResourceUI : MonoBehaviour
     void UpdateResources()
     {
         var r = ResourceManager.Instance;
-        woodText.text = $"Drewno: {r.wood}";
-        foodText.text = $"Jedzienie: {r.food}";
-        metalText.text = $"Metal:  {r.metal}";
-        populationText.text = $"populacja: {r.population}/{r.maxPopulation}";
+        woodText.text = $"{r.wood}";
+        foodText.text = $"{r.food}";
+        metalText.text = $"{r.metal}";
+        populationText.text = $"{r.population}/{r.maxPopulation}";
     }
 
     void UpdateTime()
