@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class BuildingManager : MonoBehaviour
@@ -21,10 +22,11 @@ public class BuildingManager : MonoBehaviour
     void Update()
     {
         if (!isBuilding) return;
-        UpdatePreview();
 
         if (Input.GetKeyDown(KeyCode.R))
             currentRotation = (currentRotation + 90) % 360;
+
+        UpdatePreview();
 
         if (Input.GetMouseButtonDown(0)) TryPlace();
         if (Input.GetMouseButtonDown(1)) CancelBuilding();
@@ -40,17 +42,23 @@ public class BuildingManager : MonoBehaviour
 
         selectedBuilding = data;
         isBuilding = true;
+        currentRotation = 0;
+
         previewObj = Instantiate(data.prefab);
         SetPreviewMaterial(previewObj, previewMaterialOK);
+        SetPreviewCollidersEnabled(false);
     }
 
     void UpdatePreview()
     {
+        if (previewObj == null || selectedBuilding == null)
+            return;
+
         Vector3 worldPos = GetMouseWorldPosition();
         Vector2Int gridPos = GridManager.Instance.WorldToGrid(worldPos);
         Vector3 snappedPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
 
-        snappedPos.y = GetTerrainHeight(snappedPos.x, snappedPos.z) + heightOffset;
+        snappedPos.y = GetGroundHeight(snappedPos.x, snappedPos.z) + heightOffset;
 
         previewObj.transform.position = snappedPos;
         previewObj.transform.rotation = Quaternion.Euler(0f, currentRotation, 0f);
@@ -65,44 +73,110 @@ public class BuildingManager : MonoBehaviour
 
     void TryPlace()
     {
+        if (selectedBuilding == null)
+            return;
+
         Vector3 worldPos = GetMouseWorldPosition();
         Vector2Int gridPos = GridManager.Instance.WorldToGrid(worldPos);
 
         if (!GridManager.Instance.IsAreaFree(
             gridPos.x, gridPos.y,
-            selectedBuilding.sizeX, selectedBuilding.sizeZ)) return;
+            selectedBuilding.sizeX, selectedBuilding.sizeZ))
+            return;
 
         ResourceManager.Instance.Spend(selectedBuilding.woodCost, selectedBuilding.metalCost);
 
         Vector3 finalPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
-        finalPos.y = GetTerrainHeight(finalPos.x, finalPos.z) + heightOffset;
+        finalPos.y = GetGroundHeight(finalPos.x, finalPos.z) + heightOffset;
 
         Quaternion finalRotation = Quaternion.Euler(0f, currentRotation, 0f);
         GameObject building = Instantiate(selectedBuilding.prefab, finalPos, finalRotation);
 
         BuildingInstance bi = building.GetComponent<BuildingInstance>();
-        if (bi == null) bi = building.AddComponent<BuildingInstance>();
+        if (bi == null)
+            bi = building.AddComponent<BuildingInstance>();
 
         bi.Init(selectedBuilding, gridPos, GridManager.Instance);
 
         GridManager.Instance.OccupyArea(
             gridPos.x, gridPos.y,
-            selectedBuilding.sizeX, selectedBuilding.sizeZ, building);
+            selectedBuilding.sizeX, selectedBuilding.sizeZ,
+            building
+        );
 
         CancelBuilding();
     }
 
-    float GetTerrainHeight(float x, float z)
+    float GetGroundHeight(float x, float z)
     {
         Ray ray = new Ray(new Vector3(x, 100f, z), Vector3.down);
-        if (Physics.Raycast(ray, out RaycastHit hit, 200f))
+        RaycastHit[] hits = Physics.RaycastAll(ray, 200f);
+
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in hits)
+        {
+            if (ShouldIgnoreHit(hit.collider))
+                continue;
+
             return hit.point.y;
+        }
 
         Terrain terrain = Terrain.activeTerrain;
         if (terrain != null)
-            return terrain.SampleHeight(new Vector3(x, 0, z)) + terrain.transform.position.y;
+            return terrain.SampleHeight(new Vector3(x, 0f, z)) + terrain.transform.position.y;
 
         return 0f;
+    }
+
+    Vector3 GetMouseWorldPosition()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit[] hits = Physics.RaycastAll(ray, 500f);
+
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in hits)
+        {
+            if (ShouldIgnoreHit(hit.collider))
+                continue;
+
+            return hit.point;
+        }
+
+        Plane plane = new Plane(Vector3.up, Vector3.zero);
+        if (plane.Raycast(ray, out float dist))
+            return ray.GetPoint(dist);
+
+        return Vector3.zero;
+    }
+
+    bool ShouldIgnoreHit(Collider collider)
+    {
+        if (collider == null)
+            return true;
+
+        if (previewObj != null && collider.transform.IsChildOf(previewObj.transform))
+            return true;
+
+        if (collider.GetComponentInParent<BuildingInstance>() != null)
+            return true;
+
+        if (collider.GetComponentInParent<EnemyUnit>() != null)
+            return true;
+
+        return false;
+    }
+
+    void SetPreviewCollidersEnabled(bool enabled)
+    {
+        if (previewObj == null)
+            return;
+
+        Collider[] colliders = previewObj.GetComponentsInChildren<Collider>();
+
+        foreach (Collider collider in colliders)
+            collider.enabled = enabled;
     }
 
     public void CancelBuilding()
@@ -110,25 +184,14 @@ public class BuildingManager : MonoBehaviour
         isBuilding = false;
         selectedBuilding = null;
         currentRotation = 0;
-        if (previewObj != null) Destroy(previewObj);
-    }
 
-    Vector3 GetMouseWorldPosition()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 500f))
-            return hit.point;
-
-        Plane plane = new Plane(Vector3.up, new Vector3(0, 2f, 0));
-        if (plane.Raycast(ray, out float dist))
-            return ray.GetPoint(dist);
-
-        return Vector3.zero;
+        if (previewObj != null)
+            Destroy(previewObj);
     }
 
     void SetPreviewMaterial(GameObject obj, Material mat)
     {
-        foreach (var r in obj.GetComponentsInChildren<Renderer>())
+        foreach (Renderer r in obj.GetComponentsInChildren<Renderer>())
             r.material = mat;
     }
 }
