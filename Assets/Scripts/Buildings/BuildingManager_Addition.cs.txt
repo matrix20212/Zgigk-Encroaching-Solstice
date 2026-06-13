@@ -1,0 +1,14 @@
+W BuildingManager.cs po Instantiate budynku dodaj inicjalizację BuildingInstance.
+
+Zmień fragment w miejscu, gdzie tworzysz budynek, na logikę tego typu:
+
+GameObject placedBuilding = Instantiate(selectedBuilding.prefab, worldPosition, Quaternion.identity);
+
+BuildingInstance instance = placedBuilding.GetComponent<BuildingInstance>();
+
+if (instance == null)
+    instance = placedBuilding.AddComponent<BuildingInstance>();
+
+instance.Initialize(selectedBuilding, gridPosition, gridManager);
+
+Nazwy selectedBuilding, worldPosition, gridPosition i gridManager dopasuj do tych, które już masz w skrypcie.

@@ -96,8 +96,13 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+    public void ReleaseArea(Vector2Int start, Vector2Int size)
+    {
+        FreeArea(start.x, start.y, size.x, size.y);
+    }
+
     // DEBUG
-    void OnDrawGizmos()
+    void OnDrawGizmosSelected()
     {
         Gizmos.color = new Color(1, 1, 1, 0.2f);
         for (int x = 0; x < width; x++)

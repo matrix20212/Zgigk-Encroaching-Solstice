@@ -39,6 +39,29 @@ public class ResourceManager : MonoBehaviour
         }
         OnResourcesChanged?.Invoke();
     }
+    public void AddResource(ResourceType type, int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        switch (type)
+        {
+            case ResourceType.Wood:
+                wood += amount;
+                break;
+            case ResourceType.Food:
+                food += amount;
+                break;
+            case ResourceType.Metal:
+                metal += amount;
+                break;
+            case ResourceType.Population:
+                population += amount;
+                break;
+        }
+
+        OnResourcesChanged?.Invoke();
+    }
 
     // Wywo³ywane ka¿dej nocy
     public void ConsumeFood()

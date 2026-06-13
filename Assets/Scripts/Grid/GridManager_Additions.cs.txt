@@ -1,0 +1,31 @@
+Do GridManager.cs dodaj metodę:
+
+public void ReleaseArea(Vector2Int start, Vector2Int size)
+{
+    for (int x = start.x; x < start.x + size.x; x++)
+    {
+        for (int z = start.y; z < start.y + size.y; z++)
+        {
+            if (x < 0 || z < 0 || x >= width || z >= height)
+                continue;
+
+            grid[x, z].isOccupied = false;
+            grid[x, z].building = null;
+        }
+    }
+}
+
+Jeżeli u ciebie pola nazywają się inaczej niż width, height, grid, isOccupied albo building, zostaw logikę taką samą i podmień same nazwy.
+
+Żeby grid nie prześwitywał przez budynki, w GridManager.cs zmień:
+
+private void OnDrawGizmos()
+
+na:
+
+private void OnDrawGizmosSelected()
+
+Jeżeli chcesz widzieć grid tylko poza play mode, dodaj na początku tej metody:
+
+if (Application.isPlaying)
+    return;

@@ -4,7 +4,7 @@ public class BuildingManager : MonoBehaviour
 {
     public static BuildingManager Instance;
 
-    [Header("Podgl¹d budynku")]
+    [Header("PodglÄ…d budynku")]
     public Material previewMaterialOK;
     public Material previewMaterialBlock;
 
@@ -26,7 +26,7 @@ public class BuildingManager : MonoBehaviour
     {
         if (ResourceManager.Instance.CanAfford(data.woodCost, data.metalCost) == false)
         {
-            Debug.Log("Za ma³o surowców!");
+            Debug.Log("Za maÅ‚o surowcÃ³w!");
             return;
         }
 
@@ -66,7 +66,12 @@ public class BuildingManager : MonoBehaviour
         // Postaw budynek
         Vector3 finalPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
         GameObject building = Instantiate(selectedBuilding.prefab, finalPos, Quaternion.identity);
-        building.AddComponent<BuildingInstance>().Init(selectedBuilding, gridPos.x, gridPos.y);
+
+        BuildingInstance instance = building.GetComponent<BuildingInstance>();
+        if (instance == null)
+            instance = building.AddComponent<BuildingInstance>();
+
+        instance.Init(selectedBuilding, gridPos, GridManager.Instance);
 
         GridManager.Instance.OccupyArea(gridPos.x, gridPos.y,
             selectedBuilding.sizeX, selectedBuilding.sizeZ, building);

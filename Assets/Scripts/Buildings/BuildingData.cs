@@ -1,25 +1,44 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Game/Building Data")]
+[CreateAssetMenu(fileName = "BuildingData", menuName = "Encroaching Solstice/Building Data")]
 public class BuildingData : ScriptableObject
 {
-    [Header("Podstawowe")]
     public string buildingName;
     public GameObject prefab;
     public Sprite icon;
 
-    [Header("Rozmiar na gridzie")]
     public int sizeX = 1;
     public int sizeZ = 1;
+    public Vector2Int size = Vector2Int.one;
 
-    [Header("Koszty budowy")]
     public int woodCost;
+    public int foodCost;
     public int metalCost;
 
-    [Header("Produkcja / funkcja")]
-    public int maxWorkers;
-    public ResourceType producedResource;
-    public int productionPerWorkerPerDay;
-}
+    public int maxHp = 100;
 
-public enum ResourceType { None, Wood, Food, Metal }
+    public BuildingRole role = BuildingRole.Production;
+
+    public ResourceType producedResource = ResourceType.Wood;
+    public float productionInterval = 5f;
+    public int productionAmount = 10;
+
+    public int maxWorkers;
+    public int productionPerWorkerPerDay;
+
+    public float attackRange = 8f;
+    public float attackCooldown = 1f;
+    public int attackDamage = 10;
+
+    public Vector2Int GridSize => new Vector2Int(Mathf.Max(1, sizeX), Mathf.Max(1, sizeZ));
+
+    private void OnValidate()
+    {
+        sizeX = Mathf.Max(1, sizeX);
+        sizeZ = Mathf.Max(1, sizeZ);
+        size = new Vector2Int(sizeX, sizeZ);
+        maxHp = Mathf.Max(1, maxHp);
+        productionInterval = Mathf.Max(0.1f, productionInterval);
+        attackCooldown = Mathf.Max(0.1f, attackCooldown);
+    }
+}
