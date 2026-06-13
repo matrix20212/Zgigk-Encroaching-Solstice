@@ -25,22 +25,19 @@ public class DayManager : MonoBehaviour
         timer += Time.deltaTime;
         float phase = isDay ? dayDuration : nightDuration;
 
+        float dayProgress = timer / phase;
+        float timeOfDay = isDay
+            ? Mathf.Lerp(0.25f, 0.75f, dayProgress)
+            : Mathf.Lerp(0.75f, 1.25f, dayProgress) % 1f;
+
+        if (DayNightLighting.Instance != null)
+            DayNightLighting.Instance.UpdateLighting(timeOfDay);
+
         if (timer >= phase)
         {
             timer = 0f;
-            if (isDay)
-            {
-                isDay = false;
-                OnNightStart?.Invoke();
-                EndDay();
-            }
-            else
-            {
-                isDay = true;
-                currentDay++;
-                OnDayStart?.Invoke();
-                OnNewDay?.Invoke();
-            }
+            if (isDay) { isDay = false; OnNightStart?.Invoke(); EndDay(); }
+            else { isDay = true; currentDay++; OnDayStart?.Invoke(); OnNewDay?.Invoke(); }
         }
     }
 
