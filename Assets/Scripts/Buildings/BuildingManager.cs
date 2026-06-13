@@ -65,6 +65,9 @@ public class BuildingManager : MonoBehaviour
 
         // Postaw budynek
         Vector3 finalPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
+
+        finalPos.y = GetTerrainHeight(finalPos.x, finalPos.z);
+
         GameObject building = Instantiate(selectedBuilding.prefab, finalPos, Quaternion.identity);
 
         BuildingInstance instance = building.GetComponent<BuildingInstance>();
@@ -77,6 +80,20 @@ public class BuildingManager : MonoBehaviour
             selectedBuilding.sizeX, selectedBuilding.sizeZ, building);
 
         CancelBuilding();
+    }
+
+    float GetTerrainHeight(float x, float z)
+    {
+        Ray ray = new Ray(new Vector3(x, 100f, z), Vector3.down);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 200f))
+            return hit.point.y;
+
+        Terrain terrain = Terrain.activeTerrain;
+        if (terrain != null)
+            return terrain.SampleHeight(new Vector3(x, 0, z)) + terrain.transform.position.y;
+
+        return 0f;
     }
 
     public void CancelBuilding()
