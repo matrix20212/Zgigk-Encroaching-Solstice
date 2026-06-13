@@ -84,9 +84,16 @@ public class BuildingManager : MonoBehaviour
     Vector3 GetMouseWorldPosition()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Plane plane = new Plane(Vector3.up, Vector3.zero);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 500f))
+        {
+            return hit.point;
+        }
+
+        Plane plane = new Plane(Vector3.up, new Vector3(0, 2f, 0));
         if (plane.Raycast(ray, out float dist))
             return ray.GetPoint(dist);
+
         return Vector3.zero;
     }
 
