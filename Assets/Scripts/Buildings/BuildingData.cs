@@ -12,6 +12,8 @@ public class BuildingData : ScriptableObject
     public Vector2Int size = Vector2Int.one;
 
     public bool continuousPlacement = false;
+    public bool blockManualDelete = false;
+    public bool triggerGameOverOnDestroyed = false;
 
     public int woodCost;
     public int foodCost;
