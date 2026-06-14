@@ -3559,8 +3559,8 @@ MonoBehaviour:
   minZoom: 5
   maxZoom: 20
   zoomSmoothing: 12
-  allowRotation: 0
-  rotationSpeed: 3
+  allowRotation: 1
+  rotationSpeed: 25
   pitch: 45
   yaw: 45
   useCustomStartPosition: 0
