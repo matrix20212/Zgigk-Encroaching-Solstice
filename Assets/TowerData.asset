@@ -36,8 +36,9 @@ MonoBehaviour:
   treeClearRange: 0
   attackRange: 15
   attackCooldown: 1.5
-  attackDamage: 15
+  attackDamage: 10
   projectilePrefab: {fileID: 0}
   projectileSpeed: 14
   projectileSpawnHeight: 1.5
   projectileHitDistance: 0.25
+  shootSound: {fileID: 8300000, guid: fa11a9f040b775b4896f982e3c6ec4f1, type: 3}
