@@ -1,31 +1,43 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class BuildingSelectionManager : MonoBehaviour
 {
     public static BuildingSelectionManager Instance;
-
     [SerializeField] private Camera targetCamera;
     [SerializeField] private BuildingMenuUI menuUI;
     [SerializeField] private float maxRayDistance = 500f;
-
+    [SerializeField] private TMP_FontAsset customFont;
     private BuildingInstance selectedBuilding;
 
-    private void Awake()
+    private void Start()
     {
         Instance = this;
-
         if (targetCamera == null)
             targetCamera = Camera.main;
-
         if (menuUI == null)
             menuUI = FindFirstObjectByType<BuildingMenuUI>();
-
         if (menuUI == null)
         {
             GameObject menuObject = new GameObject("BuildingMenuUI");
             menuUI = menuObject.AddComponent<BuildingMenuUI>();
+        }
+
+        Invoke(nameof(ApplyFont), 0.1f);
+    }
+
+    private void ApplyFont()
+    {
+        TMP_Text[] texts = FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        Debug.Log($"Znaleziono {texts.Length} tekstów");
+
+        foreach (TMP_Text t in texts)
+        {
+            Debug.Log($"{t.name} -> {t.font.name}");
+            t.font = customFont;
         }
     }
 
@@ -125,9 +137,11 @@ public class BuildingSelectionManager : MonoBehaviour
     public void SelectBuilding(BuildingInstance building)
     {
         selectedBuilding = building;
-
         if (menuUI != null)
+        {
             menuUI.Show(building);
+            ApplyFont();
+        }
     }
 
     public void ClearSelection()
