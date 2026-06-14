@@ -49,7 +49,7 @@ MonoBehaviour:
   maxHp: 40
   moveSpeed: 1.5
   attackRange: 1.4
-  attackDamage: 8
+  attackDamage: 10
   attackCooldown: 1.2
   targetRefreshInterval: 0.2
   animator: {fileID: 0}

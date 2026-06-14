@@ -17,6 +17,8 @@ public class BuildingManager : MonoBehaviour
     private bool isBuilding = false;
     private int currentRotation = 0;
 
+    public bool IsBuildingMode => isBuilding;
+
     void Awake() => Instance = this;
 
     void Update()

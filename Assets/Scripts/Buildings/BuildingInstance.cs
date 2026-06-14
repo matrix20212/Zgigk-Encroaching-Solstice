@@ -9,9 +9,14 @@ public class BuildingInstance : MonoBehaviour
     private Vector2Int gridOrigin;
     private GridManager gridManager;
     private Coroutine roleRoutine;
+    private bool destroyed = false;
 
     public BuildingData Data => data;
-    public bool IsAlive => currentHp > 0;
+    public bool IsAlive => !destroyed && currentHp > 0;
+    public int CurrentHp => currentHp;
+    public int MaxHp => data != null ? Mathf.Max(1, data.maxHp) : 100;
+    public float HealthPercent => Mathf.Clamp01((float)currentHp / MaxHp);
+    public bool CanBeManuallyDeleted => data != null && !data.blockManualDelete;
 
     private void Awake()
     {
@@ -23,6 +28,8 @@ public class BuildingInstance : MonoBehaviour
     {
         if (data != null && roleRoutine == null)
             StartRoleRoutine();
+
+        EnsureHealthBar();
     }
 
     private void OnEnable()
@@ -51,7 +58,20 @@ public class BuildingInstance : MonoBehaviour
         gridOrigin = origin;
         gridManager = grid;
         currentHp = data != null ? Mathf.Max(1, data.maxHp) : 100;
+        destroyed = false;
+
         StartRoleRoutine();
+        EnsureHealthBar();
+    }
+
+    private void EnsureHealthBar()
+    {
+        BuildingHealthBar healthBar = GetComponent<BuildingHealthBar>();
+
+        if (healthBar == null)
+            healthBar = gameObject.AddComponent<BuildingHealthBar>();
+
+        healthBar.Init(this);
     }
 
     private void StartRoleRoutine()
@@ -171,11 +191,23 @@ public class BuildingInstance : MonoBehaviour
         currentHp -= Mathf.Max(0, damage);
 
         if (currentHp <= 0)
-            Die();
+            DestroyBuilding();
     }
 
-    private void Die()
+    public void RemoveByPlayer()
     {
+        if (!CanBeManuallyDeleted)
+            return;
+
+        DestroyBuilding();
+    }
+
+    private void DestroyBuilding()
+    {
+        if (destroyed)
+            return;
+
+        destroyed = true;
         currentHp = 0;
 
         if (roleRoutine != null)
@@ -183,6 +215,9 @@ public class BuildingInstance : MonoBehaviour
 
         if (gridManager != null && data != null)
             gridManager.ReleaseArea(gridOrigin, data.GridSize);
+
+        if (data != null && data.triggerGameOverOnDestroyed && GameManager.Instance != null)
+            GameManager.Instance.GameOver();
 
         Destroy(gameObject);
     }

@@ -25,6 +25,10 @@ public class CameraController : MonoBehaviour
     public float pitch = 55f;
     public float yaw = 45f;
 
+    [Header("Start")]
+    public bool useCustomStartPosition = false;
+    public Vector3 customStartPosition = new Vector3(20f, 50f, 20f);
+
     [Header("Granice mapy")]
     public bool useMapBounds = true;
     public Vector2 minBounds = new Vector2(-100f, -100f);
@@ -41,19 +45,19 @@ public class CameraController : MonoBehaviour
     {
         cam = Camera.main;
 
-        targetPosition = new Vector3(20f, 50f, 20f);
+        UpdateRotation();
+
+        if (useCustomStartPosition)
+            targetPosition = customStartPosition;
+        else
+            targetPosition = transform.position;
+
         transform.position = targetPosition;
 
-        transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
-
         if (cam != null && cam.orthographic)
-        {
             targetZoom = cam.orthographicSize;
-        }
         else
-        {
             targetZoom = transform.position.y;
-        }
     }
 
     void Update()
@@ -64,6 +68,25 @@ public class CameraController : MonoBehaviour
         HandleRotation();
 
         ApplyCameraMovement();
+    }
+
+    public void FocusOnPoint(Vector3 point, Vector3 offset, bool instant = true)
+    {
+        UpdateRotation();
+
+        targetPosition = point + offset;
+        ClampTargetPosition();
+
+        if (instant)
+            transform.position = targetPosition;
+
+        if (cam == null)
+            cam = Camera.main;
+
+        if (cam != null && cam.orthographic)
+            targetZoom = cam.orthographicSize;
+        else
+            targetZoom = targetPosition.y;
     }
 
     void HandleEdgeScrolling()
@@ -201,9 +224,7 @@ public class CameraController : MonoBehaviour
         Ray ray = new Ray(targetPosition, transform.forward);
 
         if (groundPlane.Raycast(ray, out float distance))
-        {
             return ray.GetPoint(distance);
-        }
 
         return targetPosition + GetCameraForwardOnGround() * 20f;
     }
