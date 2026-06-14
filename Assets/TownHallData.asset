@@ -12,24 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e0e6b597478d83468092f9d6f98b5ff, type: 3}
   m_Name: TownHallData
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-<<<<<<< HEAD
   buildingName: Ratusz
-=======
-  buildingName: Tartak
->>>>>>> fb3865023086fad51099e60a58ebc1bb69d9dcdd
   prefab: {fileID: 601790674530786280, guid: 89febb840d05681498fbf43a3c5173e0, type: 3}
   icon: {fileID: 0}
   sizeX: 4
   sizeZ: 3
   size: {x: 4, y: 3}
   continuousPlacement: 0
-<<<<<<< HEAD
   blockManualDelete: 1
   triggerGameOverOnDestroyed: 1
-=======
-  blockManualDelete: 0
-  triggerGameOverOnDestroyed: 0
->>>>>>> fb3865023086fad51099e60a58ebc1bb69d9dcdd
   woodCost: 50
   foodCost: 0
   metalCost: 11
