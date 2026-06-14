@@ -12,8 +12,11 @@ public class BuildingInstance : MonoBehaviour
     private Coroutine productionRoutine;
     private Coroutine defenseRoutine;
     private Coroutine treeClearingRoutine;
+    private Coroutine populationRoutine;
 
     private bool destroyed = false;
+    private int assignedWorkers = 0;
+    private int appliedPopulationCapacityBonus = 0;
 
     public BuildingData Data => data;
     public bool IsAlive => !destroyed && currentHp > 0;
@@ -21,6 +24,33 @@ public class BuildingInstance : MonoBehaviour
     public int MaxHp => data != null ? Mathf.Max(1, data.maxHp) : 100;
     public float HealthPercent => Mathf.Clamp01((float)currentHp / MaxHp);
     public bool CanBeManuallyDeleted => data != null && !data.blockManualDelete;
+
+    public int RequiredWorkers => data != null ? Mathf.Max(0, data.maxWorkers) : 0;
+    public int AssignedWorkers => assignedWorkers;
+
+    public float WorkerEfficiency
+    {
+        get
+        {
+            if (RequiredWorkers <= 0)
+                return 1f;
+
+            return Mathf.Clamp01((float)assignedWorkers / RequiredWorkers);
+        }
+    }
+
+    public float WorkSlowdownMultiplier
+    {
+        get
+        {
+            float efficiency = WorkerEfficiency;
+
+            if (efficiency <= 0f)
+                return 0f;
+
+            return 1f / efficiency;
+        }
+    }
 
     private void Awake()
     {
@@ -30,7 +60,7 @@ public class BuildingInstance : MonoBehaviour
 
     private void Start()
     {
-        if (data != null && productionRoutine == null && defenseRoutine == null && treeClearingRoutine == null)
+        if (data != null && productionRoutine == null && defenseRoutine == null && treeClearingRoutine == null && populationRoutine == null)
             StartRoleRoutines();
 
         EnsureHealthBar();
@@ -58,15 +88,69 @@ public class BuildingInstance : MonoBehaviour
 
     public void Initialize(BuildingData buildingData, Vector2Int origin, GridManager grid)
     {
+        UnregisterFromResourceManager();
+
         data = buildingData;
         gridOrigin = origin;
         gridManager = grid;
         currentHp = data != null ? Mathf.Max(1, data.maxHp) : 100;
         destroyed = false;
+        assignedWorkers = 0;
+        appliedPopulationCapacityBonus = 0;
+
+        RegisterInResourceManager();
 
         StopAllRoleRoutines();
         StartRoleRoutines();
         EnsureHealthBar();
+    }
+
+    public void SetAssignedWorkers(int amount)
+    {
+        assignedWorkers = Mathf.Clamp(amount, 0, RequiredWorkers);
+    }
+
+    public float GetAdjustedInterval(float baseInterval)
+    {
+        baseInterval = Mathf.Max(0.1f, baseInterval);
+
+        float efficiency = WorkerEfficiency;
+
+        if (efficiency <= 0f)
+            return -1f;
+
+        return baseInterval / efficiency;
+    }
+
+    private void RegisterInResourceManager()
+    {
+        if (data == null || ResourceManager.Instance == null)
+            return;
+
+        if (data.populationCapacityBonus > 0)
+        {
+            appliedPopulationCapacityBonus = data.populationCapacityBonus;
+            ResourceManager.Instance.ChangePopulationCapacity(appliedPopulationCapacityBonus);
+        }
+
+        if (RequiredWorkers > 0)
+            ResourceManager.Instance.RegisterWorkerBuilding(this);
+    }
+
+    private void UnregisterFromResourceManager()
+    {
+        if (ResourceManager.Instance == null)
+            return;
+
+        ResourceManager.Instance.UnregisterWorkerBuilding(this);
+
+        if (appliedPopulationCapacityBonus > 0)
+        {
+            ResourceManager.Instance.ChangePopulationCapacity(-appliedPopulationCapacityBonus);
+            appliedPopulationCapacityBonus = 0;
+        }
+
+        assignedWorkers = 0;
     }
 
     private void EnsureHealthBar()
@@ -92,6 +176,9 @@ public class BuildingInstance : MonoBehaviour
 
         if (data.clearTreesInRange)
             treeClearingRoutine = StartCoroutine(TreeClearingLoop());
+
+        if (data.producesPopulation)
+            populationRoutine = StartCoroutine(PopulationGrowthLoop());
     }
 
     private void StopAllRoleRoutines()
@@ -105,16 +192,28 @@ public class BuildingInstance : MonoBehaviour
         if (treeClearingRoutine != null)
             StopCoroutine(treeClearingRoutine);
 
+        if (populationRoutine != null)
+            StopCoroutine(populationRoutine);
+
         productionRoutine = null;
         defenseRoutine = null;
         treeClearingRoutine = null;
+        populationRoutine = null;
     }
 
     private IEnumerator ProductionLoop()
     {
         while (IsAlive)
         {
-            yield return new WaitForSeconds(Mathf.Max(0.1f, data.productionInterval));
+            float interval = GetAdjustedInterval(data.productionInterval);
+
+            if (interval < 0f)
+            {
+                yield return new WaitForSeconds(1f);
+                continue;
+            }
+
+            yield return new WaitForSeconds(interval);
             ProduceResources();
         }
     }
@@ -125,6 +224,9 @@ public class BuildingInstance : MonoBehaviour
             return;
 
         if (data.role != BuildingRole.Production)
+            return;
+
+        if (WorkerEfficiency <= 0f)
             return;
 
         int amount = data.productionAmount;
@@ -139,11 +241,38 @@ public class BuildingInstance : MonoBehaviour
             ResourceManager.Instance.AddResource(data.producedResource, amount);
     }
 
+    private IEnumerator PopulationGrowthLoop()
+    {
+        while (IsAlive)
+        {
+            float interval = GetAdjustedInterval(data.populationProductionInterval);
+
+            if (interval < 0f)
+            {
+                yield return new WaitForSeconds(1f);
+                continue;
+            }
+
+            yield return new WaitForSeconds(interval);
+
+            if (ResourceManager.Instance != null)
+                ResourceManager.Instance.AddPopulation(data.populationProductionAmount);
+        }
+    }
+
     private IEnumerator TreeClearingLoop()
     {
         while (IsAlive)
         {
-            yield return new WaitForSeconds(Mathf.Max(0.1f, data.treeClearInterval));
+            float interval = GetAdjustedInterval(data.treeClearInterval);
+
+            if (interval < 0f)
+            {
+                yield return new WaitForSeconds(1f);
+                continue;
+            }
+
+            yield return new WaitForSeconds(interval);
             ClearNearestTree();
         }
     }
@@ -151,6 +280,9 @@ public class BuildingInstance : MonoBehaviour
     private void ClearNearestTree()
     {
         if (data == null || !data.clearTreesInRange)
+            return;
+
+        if (WorkerEfficiency <= 0f)
             return;
 
         TreeResource tree = TreeResource.GetNearest(transform.position, data.treeClearRange);
@@ -163,18 +295,26 @@ public class BuildingInstance : MonoBehaviour
     {
         while (IsAlive)
         {
+            float interval = GetAdjustedInterval(data.attackCooldown);
+
+            if (interval < 0f)
+            {
+                yield return new WaitForSeconds(1f);
+                continue;
+            }
+
             EnemyUnit target = FindTarget();
 
             if (target != null)
                 Shoot(target);
 
-            yield return new WaitForSeconds(Mathf.Max(0.1f, data.attackCooldown));
+            yield return new WaitForSeconds(interval);
         }
     }
 
     private EnemyUnit FindTarget()
     {
-        EnemyUnit[] enemies = Object.FindObjectsByType<EnemyUnit>();
+        EnemyUnit[] enemies = Object.FindObjectsByType<EnemyUnit>(FindObjectsSortMode.None);
         EnemyUnit nearest = null;
         float bestDistance = data.attackRange * data.attackRange;
 
@@ -222,6 +362,9 @@ public class BuildingInstance : MonoBehaviour
             projectile = projectileObject.AddComponent<TowerProjectile>();
 
         projectile.Init(target, data.attackDamage, data.projectileSpeed, data.projectileHitDistance);
+
+        if (data.shootSound != null)
+            AudioSource.PlayClipAtPoint(data.shootSound, spawnPosition);
     }
 
     public void TakeDamage(int damage)
@@ -252,6 +395,7 @@ public class BuildingInstance : MonoBehaviour
         currentHp = 0;
 
         StopAllRoleRoutines();
+        UnregisterFromResourceManager();
 
         if (gridManager != null && data != null)
             gridManager.ReleaseArea(gridOrigin, data.GridSize);

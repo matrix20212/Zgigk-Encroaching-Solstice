@@ -8,6 +8,7 @@ public class BuildingMenuUI : MonoBehaviour
     private GameObject panelObject;
     private TextMeshProUGUI titleText;
     private TextMeshProUGUI statsText;
+    private RectTransform statsTextRect;
     private Button deleteButton;
     private Button closeButton;
 
@@ -76,6 +77,10 @@ public class BuildingMenuUI : MonoBehaviour
 
         statsText.text = BuildStatsText(currentBuilding, data);
         deleteButton.gameObject.SetActive(currentBuilding.CanBeManuallyDeleted);
+
+        statsText.ForceMeshUpdate();
+        float height = Mathf.Max(380f, statsText.preferredHeight + 20f);
+        statsTextRect.sizeDelta = new Vector2(0f, height);
     }
 
     private string BuildStatsText(BuildingInstance building, BuildingData data)
@@ -91,21 +96,119 @@ public class BuildingMenuUI : MonoBehaviour
         if (data.foodCost > 0)
             text += $", jedzenie {data.foodCost}";
 
-        if (data.role == BuildingRole.Production)
+        text += BuildWorkersText(building);
+
+        if (data.populationCapacityBonus > 0)
         {
             text +=
-                $"\nProdukuje: {GetResourceName(data.producedResource)}" +
-                $"\nIloœæ: {data.productionAmount}" +
-                $"\nInterwa³: {data.productionInterval:0.##}s";
+                "\n\n<b><color=#FFD36A>Populacja</color></b>" +
+                $"\nLimit populacji: +{data.populationCapacityBonus}";
         }
 
+        if (data.producesPopulation)
+            text += BuildPopulationProductionText(building, data);
+
+        if (HasResourceProduction(data))
+            text += BuildProductionText(building, data);
+
+        if (data.clearTreesInRange)
+            text += BuildTreeClearingText(building, data);
+
         if (data.role == BuildingRole.Defensive)
-        {
-            text +=
-                $"\nObra¿enia: {data.attackDamage}" +
-                $"\nZasiêg: {data.attackRange:0.##}" +
-                $"\nCooldown: {data.attackCooldown:0.##}s";
-        }
+            text += BuildDefenseText(building, data);
+
+        if (!building.CanBeManuallyDeleted)
+            text += "\n\n<color=#BBBBBB>Nie mo¿na usun¹æ rêcznie</color>";
+
+        return text;
+    }
+
+    private string BuildWorkersText(BuildingInstance building)
+    {
+        string text = "\n\n<b><color=#FFD36A>Pracownicy</color></b>";
+
+        if (building.RequiredWorkers <= 0)
+            return text + "\nNie wymaga";
+
+        text += $"\nObsada: {building.AssignedWorkers}/{building.RequiredWorkers}";
+
+        if (building.AssignedWorkers <= 0)
+            text += "\nStatus: stoi";
+        else if (building.AssignedWorkers < building.RequiredWorkers)
+            text += $"\nSpowolnienie: x{building.WorkSlowdownMultiplier:0.##}";
+        else
+            text += "\nSpowolnienie: brak";
+
+        return text;
+    }
+
+    private string BuildPopulationProductionText(BuildingInstance building, BuildingData data)
+    {
+        float interval = building.GetAdjustedInterval(data.populationProductionInterval);
+
+        string text =
+            "\n\n<b><color=#FFD36A>Tworzenie ludzi</color></b>" +
+            $"\nIloœæ: {data.populationProductionAmount}";
+
+        if (interval < 0f)
+            text += "\nInterwa³: stoi";
+        else
+            text += $"\nInterwa³: {interval:0.##}s";
+
+        return text;
+    }
+
+    private bool HasResourceProduction(BuildingData data)
+    {
+        return data.productionAmount > 0 || data.productionPerWorkerPerDay > 0;
+    }
+
+    private string BuildProductionText(BuildingInstance building, BuildingData data)
+    {
+        float interval = building.GetAdjustedInterval(data.productionInterval);
+
+        string text =
+            "\n\n<b><color=#FFD36A>Produkcja surowców</color></b>" +
+            $"\nTyp: {GetResourceName(data.producedResource)}" +
+            $"\nIloœæ: {data.productionAmount}";
+
+        if (interval < 0f)
+            text += "\nInterwa³: stoi";
+        else
+            text += $"\nInterwa³: {interval:0.##}s";
+
+        return text;
+    }
+
+    private string BuildTreeClearingText(BuildingInstance building, BuildingData data)
+    {
+        float interval = building.GetAdjustedInterval(data.treeClearInterval);
+
+        string text =
+            "\n\n<b><color=#FFD36A>Wycinka drzew</color></b>" +
+            $"\nZasiêg: {data.treeClearRange:0.##}";
+
+        if (interval < 0f)
+            text += "\nInterwa³: stoi";
+        else
+            text += $"\nInterwa³: {interval:0.##}s";
+
+        return text;
+    }
+
+    private string BuildDefenseText(BuildingInstance building, BuildingData data)
+    {
+        float cooldown = building.GetAdjustedInterval(data.attackCooldown);
+
+        string text =
+            "\n\n<b><color=#FFD36A>Obrona</color></b>" +
+            $"\nObra¿enia: {data.attackDamage}" +
+            $"\nZasiêg: {data.attackRange:0.##}";
+
+        if (cooldown < 0f)
+            text += "\nCooldown: stoi";
+        else
+            text += $"\nCooldown: {cooldown:0.##}s";
 
         return text;
     }
@@ -151,47 +254,100 @@ public class BuildingMenuUI : MonoBehaviour
         panelObject.transform.SetParent(canvas.transform, false);
 
         Image panelImage = panelObject.AddComponent<Image>();
-        panelImage.color = new Color(0f, 0f, 0f, 0.78f);
+        panelImage.color = new Color(0f, 0f, 0f, 0.86f);
 
         RectTransform panelRect = panelObject.GetComponent<RectTransform>();
         panelRect.anchorMin = new Vector2(1f, 0.5f);
         panelRect.anchorMax = new Vector2(1f, 0.5f);
         panelRect.pivot = new Vector2(1f, 0.5f);
         panelRect.anchoredPosition = new Vector2(-20f, 0f);
-        panelRect.sizeDelta = new Vector2(300f, 330f);
+        panelRect.sizeDelta = new Vector2(380f, 560f);
 
-        titleText = CreateText("Title", panelObject.transform, new Vector2(0f, 120f), new Vector2(260f, 40f), 24);
-        titleText.alignment = TextAlignmentOptions.Center;
-        titleText.fontStyle = FontStyles.Bold;
+        titleText = CreateTitleText(panelObject.transform);
 
-        statsText = CreateText("Stats", panelObject.transform, new Vector2(0f, 5f), new Vector2(260f, 190f), 17);
-        statsText.alignment = TextAlignmentOptions.TopLeft;
+        ScrollRect scrollRect = CreateStatsScroll(panelObject.transform);
+        statsText = scrollRect.content.GetComponent<TextMeshProUGUI>();
+        statsTextRect = scrollRect.content;
 
-        deleteButton = CreateButton("DeleteButton", panelObject.transform, "Usuñ budynek", new Vector2(0f, -90f), new Vector2(220f, 42f));
+        deleteButton = CreateButton("DeleteButton", panelObject.transform, "Usuñ budynek", new Vector2(0f, 62f), new Vector2(280f, 42f));
         deleteButton.onClick.AddListener(DeleteCurrentBuilding);
 
-        closeButton = CreateButton("CloseButton", panelObject.transform, "Zamknij", new Vector2(0f, -135f), new Vector2(220f, 36f));
+        closeButton = CreateButton("CloseButton", panelObject.transform, "Zamknij", new Vector2(0f, 16f), new Vector2(280f, 38f));
         closeButton.onClick.AddListener(Hide);
     }
 
-    private TextMeshProUGUI CreateText(string name, Transform parent, Vector2 position, Vector2 size, int fontSize)
+    private TextMeshProUGUI CreateTitleText(Transform parent)
     {
-        GameObject textObject = new GameObject(name);
+        GameObject textObject = new GameObject("Title");
         textObject.transform.SetParent(parent, false);
 
         TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
-        text.fontSize = fontSize;
+        text.fontSize = 28;
         text.color = Color.white;
-        text.text = "";
+        text.alignment = TextAlignmentOptions.Center;
+        text.fontStyle = FontStyles.Bold;
+        text.enableWordWrapping = false;
+        text.overflowMode = TextOverflowModes.Ellipsis;
 
         RectTransform rect = text.GetComponent<RectTransform>();
-        rect.anchoredPosition = position;
-        rect.sizeDelta = size;
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(1f, 1f);
+        rect.pivot = new Vector2(0.5f, 1f);
+        rect.anchoredPosition = new Vector2(0f, -14f);
+        rect.sizeDelta = new Vector2(-40f, 42f);
 
         return text;
     }
 
-    private Button CreateButton(string name, Transform parent, string label, Vector2 position, Vector2 size)
+    private ScrollRect CreateStatsScroll(Transform parent)
+    {
+        GameObject viewportObject = new GameObject("StatsViewport");
+        viewportObject.transform.SetParent(parent, false);
+
+        RectTransform viewportRect = viewportObject.AddComponent<RectTransform>();
+        viewportRect.anchorMin = new Vector2(0f, 0f);
+        viewportRect.anchorMax = new Vector2(1f, 1f);
+        viewportRect.offsetMin = new Vector2(18f, 110f);
+        viewportRect.offsetMax = new Vector2(-18f, -64f);
+
+        Image viewportImage = viewportObject.AddComponent<Image>();
+        viewportImage.color = new Color(0f, 0f, 0f, 0f);
+
+        viewportObject.AddComponent<RectMask2D>();
+
+        GameObject contentObject = new GameObject("StatsText");
+        contentObject.transform.SetParent(viewportObject.transform, false);
+
+        TextMeshProUGUI text = contentObject.AddComponent<TextMeshProUGUI>();
+        text.fontSize = 15;
+        text.color = Color.white;
+        text.alignment = TextAlignmentOptions.TopLeft;
+        text.enableWordWrapping = true;
+        text.overflowMode = TextOverflowModes.Overflow;
+        text.richText = true;
+        text.lineSpacing = 2f;
+        text.text = "";
+
+        RectTransform contentRect = text.GetComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(1f, 1f);
+        contentRect.pivot = new Vector2(0.5f, 1f);
+        contentRect.anchoredPosition = Vector2.zero;
+        contentRect.sizeDelta = new Vector2(0f, 380f);
+
+        ScrollRect scrollRect = viewportObject.AddComponent<ScrollRect>();
+        scrollRect.content = contentRect;
+        scrollRect.viewport = viewportRect;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        scrollRect.inertia = false;
+        scrollRect.scrollSensitivity = 22f;
+
+        return scrollRect;
+    }
+
+    private Button CreateButton(string name, Transform parent, string label, Vector2 bottomPosition, Vector2 size)
     {
         GameObject buttonObject = new GameObject(name);
         buttonObject.transform.SetParent(parent, false);
@@ -202,12 +358,27 @@ public class BuildingMenuUI : MonoBehaviour
         Button button = buttonObject.AddComponent<Button>();
 
         RectTransform rect = buttonObject.GetComponent<RectTransform>();
-        rect.anchoredPosition = position;
+        rect.anchorMin = new Vector2(0.5f, 0f);
+        rect.anchorMax = new Vector2(0.5f, 0f);
+        rect.pivot = new Vector2(0.5f, 0f);
+        rect.anchoredPosition = bottomPosition;
         rect.sizeDelta = size;
 
-        TextMeshProUGUI buttonText = CreateText("Text", buttonObject.transform, Vector2.zero, size, 18);
+        GameObject textObject = new GameObject("Text");
+        textObject.transform.SetParent(buttonObject.transform, false);
+
+        TextMeshProUGUI buttonText = textObject.AddComponent<TextMeshProUGUI>();
+        buttonText.fontSize = 18;
+        buttonText.color = Color.white;
         buttonText.text = label;
         buttonText.alignment = TextAlignmentOptions.Center;
+        buttonText.enableWordWrapping = false;
+
+        RectTransform textRect = buttonText.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
 
         return button;
     }

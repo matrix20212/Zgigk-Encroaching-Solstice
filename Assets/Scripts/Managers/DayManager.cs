@@ -6,8 +6,8 @@ public class DayManager : MonoBehaviour
     public static DayManager Instance;
 
     [Header("Czas")]
-    public float dayDuration = 240f;   // 4 minuty = 1 dzieñ
-    public float nightDuration = 150f; // 2.5 minuty = 1 noc
+    public float dayDuration = 240f;
+    public float nightDuration = 150f;
 
     public int currentDay = 1;
     public bool isDay = true;
@@ -36,19 +36,20 @@ public class DayManager : MonoBehaviour
         if (timer >= phase)
         {
             timer = 0f;
-            if (isDay) { isDay = false; OnNightStart?.Invoke(); EndDay(); }
-            else { isDay = true; currentDay++; OnDayStart?.Invoke(); OnNewDay?.Invoke(); }
+
+            if (isDay)
+            {
+                isDay = false;
+                OnNightStart?.Invoke();
+            }
+            else
+            {
+                isDay = true;
+                currentDay++;
+                OnDayStart?.Invoke();
+                OnNewDay?.Invoke();
+            }
         }
-    }
-
-    void EndDay()
-    {
-        // Wszystkie budynki produkuj¹ surowce
-        foreach (var b in FindObjectsOfType<BuildingInstance>())
-            b.ProduceResources();
-
-        // Zu¿ycie jedzenia
-        ResourceManager.Instance.ConsumeFood();
     }
 
     public float GetDayProgress()

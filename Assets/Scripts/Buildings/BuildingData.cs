@@ -23,17 +23,27 @@ public class BuildingData : ScriptableObject
 
     public BuildingRole role = BuildingRole.Production;
 
+    [Header("Pracownicy")]
+    public int maxWorkers;
+
+    [Header("Produkcja surowców")]
     public ResourceType producedResource = ResourceType.Wood;
     public float productionInterval = 5f;
     public int productionAmount = 10;
-
-    public int maxWorkers;
     public int productionPerWorkerPerDay;
 
+    [Header("Populacja")]
+    public int populationCapacityBonus = 0;
+    public bool producesPopulation = false;
+    public float populationProductionInterval = 10f;
+    public int populationProductionAmount = 1;
+
+    [Header("Usuwanie drzew")]
     public bool clearTreesInRange = false;
     public float treeClearInterval = 8f;
     public float treeClearRange = 8f;
 
+    [Header("Obrona")]
     public float attackRange = 8f;
     public float attackCooldown = 1f;
     public int attackDamage = 10;
@@ -42,6 +52,8 @@ public class BuildingData : ScriptableObject
     public float projectileSpeed = 12f;
     public float projectileSpawnHeight = 1.5f;
     public float projectileHitDistance = 0.25f;
+
+    public AudioClip shootSound;
 
     public Vector2Int GridSize => new Vector2Int(Mathf.Max(1, sizeX), Mathf.Max(1, sizeZ));
 
@@ -52,13 +64,20 @@ public class BuildingData : ScriptableObject
         size = new Vector2Int(sizeX, sizeZ);
 
         maxHp = Mathf.Max(1, maxHp);
+        maxWorkers = Mathf.Max(0, maxWorkers);
 
         productionInterval = Mathf.Max(0.1f, productionInterval);
-        attackCooldown = Mathf.Max(0.1f, attackCooldown);
+        productionAmount = Mathf.Max(0, productionAmount);
+        productionPerWorkerPerDay = Mathf.Max(0, productionPerWorkerPerDay);
+
+        populationCapacityBonus = Mathf.Max(0, populationCapacityBonus);
+        populationProductionInterval = Mathf.Max(0.1f, populationProductionInterval);
+        populationProductionAmount = Mathf.Max(0, populationProductionAmount);
 
         treeClearInterval = Mathf.Max(0.1f, treeClearInterval);
         treeClearRange = Mathf.Max(0f, treeClearRange);
 
+        attackCooldown = Mathf.Max(0.1f, attackCooldown);
         projectileSpeed = Mathf.Max(0.1f, projectileSpeed);
         projectileSpawnHeight = Mathf.Max(0f, projectileSpawnHeight);
         projectileHitDistance = Mathf.Max(0.05f, projectileHitDistance);

@@ -10,30 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e0e6b597478d83468092f9d6f98b5ff, type: 3}
-  m_Name: Wall
+  m_Name: HouseData
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: "\u015Aciana"
-  prefab: {fileID: 4988801499672577695, guid: 03047e74f6b7a32418952cdbeac62c46, type: 3}
+  buildingName: Tartak
+  prefab: {fileID: 6532625109120481640, guid: 911ea62c2bf0d0747bcd11a42a21da8a, type: 3}
   icon: {fileID: 0}
-  sizeX: 1
-  sizeZ: 1
-  size: {x: 1, y: 1}
-  continuousPlacement: 1
+  sizeX: 3
+  sizeZ: 3
+  size: {x: 3, y: 3}
+  continuousPlacement: 0
   blockManualDelete: 0
   triggerGameOverOnDestroyed: 0
-  woodCost: 10
+  woodCost: 30
   foodCost: 0
-  metalCost: 5
-  maxHp: 300
+  metalCost: 0
+  maxHp: 80
   role: 0
   producedResource: 0
-  productionInterval: 0.1
-  productionAmount: 0
-  maxWorkers: 0
-  productionPerWorkerPerDay: 0
-  clearTreesInRange: 0
-  treeClearInterval: 0.1
-  treeClearRange: 0
+  productionInterval: 8
+  productionAmount: 5
+  maxWorkers: 3
+  productionPerWorkerPerDay: 3
+  clearTreesInRange: 1
+  treeClearInterval: 8
+  treeClearRange: 30
   attackRange: 0
   attackCooldown: 0.1
   attackDamage: 0
