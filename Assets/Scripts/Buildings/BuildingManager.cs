@@ -44,6 +44,9 @@ public class BuildingManager : MonoBehaviour
         isBuilding = true;
         currentRotation = 0;
 
+        if (previewObj != null)
+            Destroy(previewObj);
+
         previewObj = Instantiate(data.prefab);
         SetPreviewMaterial(previewObj, previewMaterialOK);
         SetPreviewCollidersEnabled(false);
@@ -56,8 +59,9 @@ public class BuildingManager : MonoBehaviour
 
         Vector3 worldPos = GetMouseWorldPosition();
         Vector2Int gridPos = GridManager.Instance.WorldToGrid(worldPos);
-        Vector3 snappedPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
+        Vector2Int placementSize = GetPlacementSize();
 
+        Vector3 snappedPos = GetBuildingCenterWorldPosition(gridPos, placementSize);
         snappedPos.y = GetGroundHeight(snappedPos.x, snappedPos.z) + heightOffset;
 
         previewObj.transform.position = snappedPos;
@@ -65,7 +69,7 @@ public class BuildingManager : MonoBehaviour
 
         bool canPlace = GridManager.Instance.IsAreaFree(
             gridPos.x, gridPos.y,
-            selectedBuilding.sizeX, selectedBuilding.sizeZ
+            placementSize.x, placementSize.y
         );
 
         SetPreviewMaterial(previewObj, canPlace ? previewMaterialOK : previewMaterialBlock);
@@ -76,17 +80,24 @@ public class BuildingManager : MonoBehaviour
         if (selectedBuilding == null)
             return;
 
+        if (!ResourceManager.Instance.CanAfford(selectedBuilding.woodCost, selectedBuilding.metalCost))
+        {
+            CancelBuilding();
+            return;
+        }
+
         Vector3 worldPos = GetMouseWorldPosition();
         Vector2Int gridPos = GridManager.Instance.WorldToGrid(worldPos);
+        Vector2Int placementSize = GetPlacementSize();
 
         if (!GridManager.Instance.IsAreaFree(
             gridPos.x, gridPos.y,
-            selectedBuilding.sizeX, selectedBuilding.sizeZ))
+            placementSize.x, placementSize.y))
             return;
 
         ResourceManager.Instance.Spend(selectedBuilding.woodCost, selectedBuilding.metalCost);
 
-        Vector3 finalPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
+        Vector3 finalPos = GetBuildingCenterWorldPosition(gridPos, placementSize);
         finalPos.y = GetGroundHeight(finalPos.x, finalPos.z) + heightOffset;
 
         Quaternion finalRotation = Quaternion.Euler(0f, currentRotation, 0f);
@@ -100,11 +111,39 @@ public class BuildingManager : MonoBehaviour
 
         GridManager.Instance.OccupyArea(
             gridPos.x, gridPos.y,
-            selectedBuilding.sizeX, selectedBuilding.sizeZ,
+            placementSize.x, placementSize.y,
             building
         );
 
-        CancelBuilding();
+        if (!selectedBuilding.continuousPlacement)
+        {
+            CancelBuilding();
+            return;
+        }
+
+        if (!ResourceManager.Instance.CanAfford(selectedBuilding.woodCost, selectedBuilding.metalCost))
+        {
+            CancelBuilding();
+            return;
+        }
+
+        UpdatePreview();
+    }
+
+    Vector2Int GetPlacementSize()
+    {
+        return new Vector2Int(selectedBuilding.sizeX, selectedBuilding.sizeZ);
+    }
+
+    Vector3 GetBuildingCenterWorldPosition(Vector2Int gridPos, Vector2Int placementSize)
+    {
+        Vector3 firstCellCenter = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
+        float cellSize = GridManager.Instance.cellSize;
+
+        float offsetX = (placementSize.x - 1) * cellSize * 0.5f;
+        float offsetZ = (placementSize.y - 1) * cellSize * 0.5f;
+
+        return firstCellCenter + new Vector3(offsetX, 0f, offsetZ);
     }
 
     float GetGroundHeight(float x, float z)

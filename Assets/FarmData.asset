@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e0e6b597478d83468092f9d6f98b5ff, type: 3}
-  m_Name: TartakData
+  m_Name: FarmData
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: Tartak
-  prefab: {fileID: 6532625109120481640, guid: 911ea62c2bf0d0747bcd11a42a21da8a, type: 3}
+  buildingName: Farm
+  prefab: {fileID: 6693501855712063899, guid: 495d70070bdca3140b5f9b730f2acc0a, type: 3}
   icon: {fileID: 0}
   sizeX: 3
   sizeZ: 3

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e0e6b597478d83468092f9d6f98b5ff, type: 3}
-  m_Name: TartakData
+  m_Name: MineData
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: Tartak
-  prefab: {fileID: 6532625109120481640, guid: 911ea62c2bf0d0747bcd11a42a21da8a, type: 3}
+  buildingName: Mine
+  prefab: {fileID: 6846420628512419746, guid: 181783951dc7e2d4a9f6e83dabf29f2c, type: 3}
   icon: {fileID: 0}
   sizeX: 3
   sizeZ: 3
@@ -23,9 +23,9 @@ MonoBehaviour:
   metalCost: 11
   maxHp: 100
   role: 0
-  producedResource: 0
-  productionInterval: 1
-  productionAmount: 1
+  producedResource: 2
+  productionInterval: 10
+  productionAmount: 5
   maxWorkers: 3
   productionPerWorkerPerDay: 2
   attackRange: 8

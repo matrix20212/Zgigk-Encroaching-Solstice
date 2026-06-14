@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class EnemyUnit : MonoBehaviour
@@ -9,16 +10,29 @@ public class EnemyUnit : MonoBehaviour
     [SerializeField] private float attackCooldown = 1.2f;
     [SerializeField] private float targetRefreshInterval = 0.2f;
 
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private string movingParameter = "Moving";
+    [SerializeField] private string attackTrigger = "Attack";
+    [SerializeField] private string deathTrigger = "Death";
+    [SerializeField] private float attackHitDelay = 0.35f;
+    [SerializeField] private float destroyAfterDeathDelay = 2.2f;
+
     private int currentHp;
     private float nextAttackTime;
     private float nextTargetRefreshTime;
+    private bool isDead;
+    private bool isAttacking;
     private BuildingInstance target;
 
-    public bool IsAlive => currentHp > 0;
+    public bool IsAlive => currentHp > 0 && !isDead;
 
     private void Awake()
     {
         currentHp = Mathf.Max(1, maxHp);
+
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
@@ -29,7 +43,10 @@ public class EnemyUnit : MonoBehaviour
         RefreshTargetIfNeeded();
 
         if (target == null)
+        {
+            SetMoving(false);
             return;
+        }
 
         float distance = Vector3.Distance(transform.position, target.transform.position);
 
@@ -39,6 +56,7 @@ public class EnemyUnit : MonoBehaviour
         }
         else
         {
+            SetMoving(false);
             TryAttack();
         }
     }
@@ -54,28 +72,57 @@ public class EnemyUnit : MonoBehaviour
 
     private void MoveToTarget()
     {
-        if (target == null)
+        if (target == null || isAttacking)
             return;
 
         Vector3 direction = target.transform.position - transform.position;
         direction.y = 0f;
 
         if (direction.sqrMagnitude <= 0.001f)
+        {
+            SetMoving(false);
             return;
+        }
 
         direction.Normalize();
 
         transform.position += direction * moveSpeed * Time.deltaTime;
         transform.rotation = Quaternion.LookRotation(direction);
+
+        SetMoving(true);
     }
 
     private void TryAttack()
     {
-        if (Time.time < nextAttackTime || target == null || !target.IsAlive)
+        if (isAttacking || Time.time < nextAttackTime || target == null || !target.IsAlive)
             return;
 
         nextAttackTime = Time.time + Mathf.Max(0.1f, attackCooldown);
-        target.TakeDamage(attackDamage);
+
+        if (animator != null)
+            animator.SetTrigger(attackTrigger);
+
+        StartCoroutine(AttackRoutine(target));
+    }
+
+    private IEnumerator AttackRoutine(BuildingInstance attackedTarget)
+    {
+        isAttacking = true;
+        SetMoving(false);
+
+        yield return new WaitForSeconds(attackHitDelay);
+
+        if (IsAlive && attackedTarget != null && attackedTarget.IsAlive)
+        {
+            float distance = Vector3.Distance(transform.position, attackedTarget.transform.position);
+
+            if (distance <= attackRange + 0.35f)
+                attackedTarget.TakeDamage(attackDamage);
+        }
+
+        yield return new WaitForSeconds(0.15f);
+
+        isAttacking = false;
     }
 
     public void TakeDamage(int damage)
@@ -91,7 +138,29 @@ public class EnemyUnit : MonoBehaviour
 
     private void Die()
     {
+        if (isDead)
+            return;
+
+        isDead = true;
         currentHp = 0;
-        Destroy(gameObject);
+
+        StopAllCoroutines();
+        SetMoving(false);
+
+        if (animator != null)
+            animator.SetTrigger(deathTrigger);
+
+        Collider collider = GetComponent<Collider>();
+
+        if (collider != null)
+            collider.enabled = false;
+
+        Destroy(gameObject, destroyAfterDeathDelay);
+    }
+
+    private void SetMoving(bool moving)
+    {
+        if (animator != null)
+            animator.SetBool(movingParameter, moving);
     }
 }

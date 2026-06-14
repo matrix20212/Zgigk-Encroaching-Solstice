@@ -18,7 +18,8 @@ MonoBehaviour:
   sizeX: 1
   sizeZ: 1
   size: {x: 1, y: 1}
-  woodCost: 50
+  continuousPlacement: 1
+  woodCost: 25
   foodCost: 0
   metalCost: 0
   maxHp: 300

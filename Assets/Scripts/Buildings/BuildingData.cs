@@ -11,6 +11,8 @@ public class BuildingData : ScriptableObject
     public int sizeZ = 1;
     public Vector2Int size = Vector2Int.one;
 
+    public bool continuousPlacement = false;
+
     public int woodCost;
     public int foodCost;
     public int metalCost;
