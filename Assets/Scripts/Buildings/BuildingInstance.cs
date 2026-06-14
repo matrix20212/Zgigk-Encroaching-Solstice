@@ -122,6 +122,19 @@ public class BuildingInstance : MonoBehaviour
         return baseInterval / efficiency;
     }
 
+    public float GetAdjustedPopulationInterval(float baseInterval)
+    {
+        float workerAdjustedInterval = GetAdjustedInterval(baseInterval);
+
+        if (workerAdjustedInterval < 0f)
+            return -1f;
+
+        if (ResourceManager.Instance == null)
+            return workerAdjustedInterval;
+
+        return ResourceManager.Instance.GetPopulationProductionInterval(workerAdjustedInterval);
+    }
+
     private void RegisterInResourceManager()
     {
         if (data == null || ResourceManager.Instance == null)
@@ -245,7 +258,7 @@ public class BuildingInstance : MonoBehaviour
     {
         while (IsAlive)
         {
-            float interval = GetAdjustedInterval(data.populationProductionInterval);
+            float interval = GetAdjustedPopulationInterval(data.populationProductionInterval);
 
             if (interval < 0f)
             {
@@ -351,11 +364,13 @@ public class BuildingInstance : MonoBehaviour
             projectileObject.transform.localScale = Vector3.one * 0.25f;
 
             Collider collider = projectileObject.GetComponent<Collider>();
+
             if (collider != null)
                 Destroy(collider);
         }
 
         TowerProjectile projectile = projectileObject.GetComponent<TowerProjectile>();
+
         if (projectile == null)
             projectile = projectileObject.AddComponent<TowerProjectile>();
 
@@ -373,7 +388,7 @@ public class BuildingInstance : MonoBehaviour
         currentHp -= Mathf.Max(0, damage);
 
         if (currentHp <= 0)
-            DestroyBuilding();
+            DestroyBuilding(true);
     }
 
     public void RemoveByPlayer()
@@ -381,10 +396,10 @@ public class BuildingInstance : MonoBehaviour
         if (!CanBeManuallyDeleted)
             return;
 
-        DestroyBuilding();
+        DestroyBuilding(false);
     }
 
-    private void DestroyBuilding()
+    private void DestroyBuilding(bool killedByEnemy)
     {
         if (destroyed)
             return;
@@ -393,7 +408,11 @@ public class BuildingInstance : MonoBehaviour
         currentHp = 0;
 
         StopAllRoleRoutines();
-        UnregisterFromResourceManager();
+
+        if (killedByEnemy)
+            KillAssignedWorkers();
+        else
+            UnregisterFromResourceManager();
 
         if (gridManager != null && data != null)
             gridManager.ReleaseArea(gridOrigin, data.GridSize);
@@ -402,5 +421,25 @@ public class BuildingInstance : MonoBehaviour
             GameManager.Instance.GameOver();
 
         Destroy(gameObject);
+    }
+    private void KillAssignedWorkers()
+    {
+        if (ResourceManager.Instance == null)
+            return;
+
+        int workersToKill = assignedWorkers;
+
+        ResourceManager.Instance.UnregisterWorkerBuilding(this);
+
+        if (workersToKill > 0)
+            ResourceManager.Instance.KillPopulation(workersToKill);
+
+        if (appliedPopulationCapacityBonus > 0)
+        {
+            ResourceManager.Instance.ChangePopulationCapacity(-appliedPopulationCapacityBonus);
+            appliedPopulationCapacityBonus = 0;
+        }
+
+        assignedWorkers = 0;
     }
 }

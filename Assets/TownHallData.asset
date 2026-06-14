@@ -28,8 +28,8 @@ MonoBehaviour:
   role: 0
   maxWorkers: 0
   producedResource: 0
-  productionInterval: 60
-  productionAmount: 10
+  productionInterval: 0.1
+  productionAmount: 0
   productionPerWorkerPerDay: 0
   populationCapacityBonus: 0
   producesPopulation: 1

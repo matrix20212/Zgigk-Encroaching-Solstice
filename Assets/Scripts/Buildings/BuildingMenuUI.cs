@@ -144,11 +144,27 @@ public class BuildingMenuUI : MonoBehaviour
 
     private string BuildPopulationProductionText(BuildingInstance building, BuildingData data)
     {
-        float interval = building.GetAdjustedInterval(data.populationProductionInterval);
+        float interval = building.GetAdjustedPopulationInterval(data.populationProductionInterval);
 
         string text =
             "\n\n<b><color=#FFD36A>Tworzenie ludzi</color></b>" +
             $"\nIloœæ: {data.populationProductionAmount}";
+
+        if (ResourceManager.Instance != null)
+        {
+            text += $"\nJedzenie: {ResourceManager.Instance.food}";
+
+            float multiplier = ResourceManager.Instance.GetPopulationProductionIntervalMultiplier();
+
+            if (multiplier < 0f)
+                text += $"\nWymaga jedzenia: {ResourceManager.Instance.minimumFoodToCreatePopulation}+";
+            else if (multiplier > 1.05f)
+                text += $"\nTempo: wolne x{multiplier:0.##}";
+            else if (multiplier < 0.95f)
+                text += $"\nTempo: szybkie x{multiplier:0.##}";
+            else
+                text += "\nTempo: normalne";
+        }
 
         if (interval < 0f)
             text += "\nInterwa³: stoi";

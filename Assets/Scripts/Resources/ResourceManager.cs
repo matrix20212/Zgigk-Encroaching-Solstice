@@ -17,6 +17,13 @@ public class ResourceManager : MonoBehaviour
     public int maxPopulation = 30;
     public int reservedPopulation = 0;
 
+    [Header("Tworzenie ludzi")]
+    public int minimumFoodToCreatePopulation = 15;
+    public int foodForNormalPopulationGrowth = 50;
+    public int foodForFastPopulationGrowth = 150;
+    public float lowFoodPopulationIntervalMultiplier = 2f;
+    public float highFoodPopulationIntervalMultiplier = 0.5f;
+
     [Header("Jedzenie")]
     public float foodConsumptionInterval = 10f;
     public int foodPerPerson = 1;
@@ -66,6 +73,10 @@ public class ResourceManager : MonoBehaviour
     {
         wood -= woodCost;
         metal -= metalCost;
+
+        wood = Mathf.Max(0, wood);
+        metal = Mathf.Max(0, metal);
+
         OnResourcesChanged?.Invoke();
     }
 
@@ -114,17 +125,61 @@ public class ResourceManager : MonoBehaviour
         OnResourcesChanged?.Invoke();
     }
 
+    public bool CanCreatePopulation()
+    {
+        if (population >= maxPopulation)
+            return false;
+
+        if (food < minimumFoodToCreatePopulation)
+            return false;
+
+        return true;
+    }
+
     public void AddPopulation(int amount)
     {
         if (amount <= 0)
             return;
 
-        if (population >= maxPopulation)
+        if (!CanCreatePopulation())
             return;
 
         population = Mathf.Min(maxPopulation, population + amount);
         RebalanceWorkers();
         OnResourcesChanged?.Invoke();
+    }
+
+    public float GetPopulationProductionIntervalMultiplier()
+    {
+        if (food < minimumFoodToCreatePopulation)
+            return -1f;
+
+        int normalFood = Mathf.Max(minimumFoodToCreatePopulation + 1, foodForNormalPopulationGrowth);
+        int fastFood = Mathf.Max(normalFood + 1, foodForFastPopulationGrowth);
+
+        float lowMultiplier = Mathf.Max(1f, lowFoodPopulationIntervalMultiplier);
+        float fastMultiplier = Mathf.Clamp(highFoodPopulationIntervalMultiplier, 0.1f, 1f);
+
+        if (food < normalFood)
+        {
+            float t = Mathf.InverseLerp(minimumFoodToCreatePopulation, normalFood, food);
+            return Mathf.Lerp(lowMultiplier, 1f, t);
+        }
+
+        float fastT = Mathf.InverseLerp(normalFood, fastFood, food);
+        return Mathf.Lerp(1f, fastMultiplier, fastT);
+    }
+
+    public float GetPopulationProductionInterval(float baseInterval)
+    {
+        baseInterval = Mathf.Max(0.1f, baseInterval);
+
+        float multiplier = GetPopulationProductionIntervalMultiplier();
+
+        if (multiplier < 0f)
+            return -1f;
+
+        return Mathf.Max(0.1f, baseInterval * multiplier);
     }
 
     public void ChangePopulationCapacity(int amount)
@@ -185,6 +240,8 @@ public class ResourceManager : MonoBehaviour
             if (remainingPeople < 0)
                 remainingPeople = 0;
         }
+
+        OnResourcesChanged?.Invoke();
     }
 
     private IEnumerator FoodConsumptionLoop()
@@ -213,12 +270,24 @@ public class ResourceManager : MonoBehaviour
         else
         {
             food = 0;
+
             int loss = Mathf.Clamp(starvationPopulationLoss, 1, population);
             population -= loss;
+
             RebalanceWorkers();
+
             Debug.Log("Brak jedzenia! Populacja maleje.");
         }
 
+        OnResourcesChanged?.Invoke();
+    }
+    public void KillPopulation(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        population = Mathf.Max(0, population - amount);
+        RebalanceWorkers();
         OnResourcesChanged?.Invoke();
     }
 }

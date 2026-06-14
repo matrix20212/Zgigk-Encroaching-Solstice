@@ -31,7 +31,7 @@ MonoBehaviour:
   productionInterval: 0.1
   productionAmount: 0
   productionPerWorkerPerDay: 0
-  populationCapacityBonus: 0
+  populationCapacityBonus: 7
   producesPopulation: 0
   populationProductionInterval: 0.1
   populationProductionAmount: 0
