@@ -12,6 +12,9 @@ public class BuildingInstance : MonoBehaviour
 
     public BuildingData Data => data;
     public bool IsAlive => currentHp > 0;
+    public int CurrentHp => currentHp;
+    public int MaxHp => data != null ? Mathf.Max(1, data.maxHp) : 100;
+    public float HealthPercent => Mathf.Clamp01((float)currentHp / MaxHp);
 
     private void Awake()
     {
@@ -23,6 +26,8 @@ public class BuildingInstance : MonoBehaviour
     {
         if (data != null && roleRoutine == null)
             StartRoleRoutine();
+
+        EnsureHealthBar();
     }
 
     private void OnEnable()
@@ -51,7 +56,19 @@ public class BuildingInstance : MonoBehaviour
         gridOrigin = origin;
         gridManager = grid;
         currentHp = data != null ? Mathf.Max(1, data.maxHp) : 100;
+
         StartRoleRoutine();
+        EnsureHealthBar();
+    }
+
+    private void EnsureHealthBar()
+    {
+        BuildingHealthBar healthBar = GetComponent<BuildingHealthBar>();
+
+        if (healthBar == null)
+            healthBar = gameObject.AddComponent<BuildingHealthBar>();
+
+        healthBar.Init(this);
     }
 
     private void StartRoleRoutine()
