@@ -41,7 +41,7 @@ public class CameraController : MonoBehaviour
     {
         cam = Camera.main;
 
-        targetPosition = new Vector3(0f, 50f, -50f);
+        targetPosition = new Vector3(20f, 50f, 20f);
         transform.position = targetPosition;
 
         transform.rotation = Quaternion.Euler(pitch, yaw, 0f);

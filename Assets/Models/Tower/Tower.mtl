@@ -1,0 +1,42 @@
+# Blender 4.2.3 LTS MTL File: 'None'
+# www.blender.org
+
+newmtl ground
+Ns 18.000004
+Ka 1.000000 1.000000 1.000000
+Ks 0.010000 0.010000 0.010000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Users/Dawid/Downloads/lowpoly_settlement_assets_v2/textures/ground.png
+
+newmtl roof
+Ns 18.000004
+Ka 1.000000 1.000000 1.000000
+Ks 0.040000 0.040000 0.040000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Users/Dawid/Downloads/lowpoly_settlement_assets_v2/textures/roof.png
+
+newmtl stone
+Ns 18.000004
+Ka 1.000000 1.000000 1.000000
+Ks 0.030000 0.030000 0.030000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Users/Dawid/Downloads/lowpoly_settlement_assets_v2/textures/stone.png
+
+newmtl wood
+Ns 18.000004
+Ka 1.000000 1.000000 1.000000
+Ks 0.060000 0.060000 0.060000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Users/Dawid/Downloads/lowpoly_settlement_assets_v2/textures/wood.png
