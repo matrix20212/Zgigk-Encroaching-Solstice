@@ -4,8 +4,12 @@ public class CameraController : MonoBehaviour
 {
     [Header("Ruch kamery")]
     public float edgeScrollSpeed = 25f;
+    public float keyboardMoveSpeed = 25f;
     public float dragPanSpeed = 0.6f;
     public float movementSmoothing = 12f;
+
+    [Header("WASD")]
+    public bool useKeyboardMovement = true;
 
     [Header("Edge scrolling")]
     public bool useEdgeScrolling = true;
@@ -62,6 +66,7 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
+        HandleKeyboardMovement();
         HandleEdgeScrolling();
         HandleMouseDrag();
         HandleZoom();
@@ -87,6 +92,39 @@ public class CameraController : MonoBehaviour
             targetZoom = cam.orthographicSize;
         else
             targetZoom = targetPosition.y;
+    }
+
+    void HandleKeyboardMovement()
+    {
+        if (!useKeyboardMovement)
+            return;
+
+        Vector3 moveDir = Vector3.zero;
+
+        Vector3 forward = GetCameraForwardOnGround();
+        Vector3 right = GetCameraRightOnGround();
+
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+            moveDir += forward;
+
+        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+            moveDir -= forward;
+
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            moveDir += right;
+
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+            moveDir -= right;
+
+        if (moveDir.sqrMagnitude < 0.001f)
+            return;
+
+        moveDir.Normalize();
+
+        float zoomFactor = GetZoomFactor();
+
+        targetPosition += moveDir * keyboardMoveSpeed * zoomFactor * Time.deltaTime;
+        ClampTargetPosition();
     }
 
     void HandleEdgeScrolling()
