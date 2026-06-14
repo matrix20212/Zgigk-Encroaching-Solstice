@@ -16,6 +16,7 @@ MonoBehaviour:
   prefab: {fileID: 6693501855712063899, guid: 495d70070bdca3140b5f9b730f2acc0a, type: 3}
   icon: {fileID: 0}
   sizeX: 3
+<<<<<<< HEAD
   sizeZ: 4
   size: {x: 3, y: 4}
   continuousPlacement: 0
@@ -24,6 +25,14 @@ MonoBehaviour:
   woodCost: 50
   foodCost: 0
   metalCost: 11
+=======
+  sizeZ: 3
+  size: {x: 3, y: 3}
+  continuousPlacement: 0
+  woodCost: 35
+  foodCost: 20
+  metalCost: 0
+>>>>>>> fb3865023086fad51099e60a58ebc1bb69d9dcdd
   maxHp: 100
   role: 0
   producedResource: 0
