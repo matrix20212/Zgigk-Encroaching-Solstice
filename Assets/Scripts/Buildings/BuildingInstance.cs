@@ -211,17 +211,18 @@ public class BuildingInstance : MonoBehaviour
             projectileObject.transform.localScale = Vector3.one * 0.25f;
 
             Collider collider = projectileObject.GetComponent<Collider>();
-
             if (collider != null)
                 Destroy(collider);
         }
 
         TowerProjectile projectile = projectileObject.GetComponent<TowerProjectile>();
-
         if (projectile == null)
             projectile = projectileObject.AddComponent<TowerProjectile>();
 
         projectile.Init(target, data.attackDamage, data.projectileSpeed, data.projectileHitDistance);
+
+        if (data.shootSound != null)
+            AudioSource.PlayClipAtPoint(data.shootSound, spawnPosition);
     }
 
     public void TakeDamage(int damage)

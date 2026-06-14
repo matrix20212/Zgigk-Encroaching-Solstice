@@ -45,6 +45,8 @@ public class BuildingData : ScriptableObject
 
     public Vector2Int GridSize => new Vector2Int(Mathf.Max(1, sizeX), Mathf.Max(1, sizeZ));
 
+    public AudioClip shootSound;
+
     private void OnValidate()
     {
         sizeX = Mathf.Max(1, sizeX);
