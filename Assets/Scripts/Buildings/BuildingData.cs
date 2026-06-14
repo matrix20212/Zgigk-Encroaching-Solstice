@@ -53,8 +53,6 @@ public class BuildingData : ScriptableObject
     public float projectileSpawnHeight = 1.5f;
     public float projectileHitDistance = 0.25f;
 
-    public AudioClip shootSound;
-
     public Vector2Int GridSize => new Vector2Int(Mathf.Max(1, sizeX), Mathf.Max(1, sizeZ));
 
     public AudioClip shootSound;
