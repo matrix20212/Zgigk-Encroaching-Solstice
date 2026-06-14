@@ -18,6 +18,11 @@ public class EnemyUnit : MonoBehaviour
     [SerializeField] private float attackHitDelay = 0.35f;
     [SerializeField] private float destroyAfterDeathDelay = 2.2f;
 
+    [Header("DŸwiêki")]
+    [SerializeField] private AudioClip deathSound;
+    [SerializeField] private AudioClip attackSound;
+    [SerializeField] private AudioSource audioSource;
+
     private int currentHp;
     private float nextAttackTime;
     private float nextTargetRefreshTime;
@@ -33,6 +38,11 @@ public class EnemyUnit : MonoBehaviour
 
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
+
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     private void Update()
@@ -117,7 +127,13 @@ public class EnemyUnit : MonoBehaviour
             float distance = Vector3.Distance(transform.position, attackedTarget.transform.position);
 
             if (distance <= attackRange + 0.35f)
+            {
+                // dŸwiêk uderzenia
+                if (attackSound != null && audioSource != null)
+                    audioSource.PlayOneShot(attackSound);
+
                 attackedTarget.TakeDamage(attackDamage);
+            }
         }
 
         yield return new WaitForSeconds(0.15f);
@@ -150,8 +166,10 @@ public class EnemyUnit : MonoBehaviour
         if (animator != null)
             animator.SetTrigger(deathTrigger);
 
-        Collider collider = GetComponent<Collider>();
+        if (deathSound != null && audioSource != null)
+            audioSource.PlayOneShot(deathSound);
 
+        Collider collider = GetComponent<Collider>();
         if (collider != null)
             collider.enabled = false;
 

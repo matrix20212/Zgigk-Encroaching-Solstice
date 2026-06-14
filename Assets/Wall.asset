@@ -19,9 +19,11 @@ MonoBehaviour:
   sizeZ: 1
   size: {x: 1, y: 1}
   continuousPlacement: 1
-  woodCost: 25
+  blockManualDelete: 0
+  triggerGameOverOnDestroyed: 0
+  woodCost: 10
   foodCost: 0
-  metalCost: 0
+  metalCost: 5
   maxHp: 300
   role: 0
   producedResource: 0
@@ -29,6 +31,9 @@ MonoBehaviour:
   productionAmount: 0
   maxWorkers: 0
   productionPerWorkerPerDay: 0
+  clearTreesInRange: 0
+  treeClearInterval: 0.1
+  treeClearRange: 0
   attackRange: 0
   attackCooldown: 0.1
   attackDamage: 0

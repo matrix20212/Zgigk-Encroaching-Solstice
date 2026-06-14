@@ -18,20 +18,26 @@ MonoBehaviour:
   sizeX: 3
   sizeZ: 3
   size: {x: 3, y: 3}
-  woodCost: 50
+  continuousPlacement: 0
+  blockManualDelete: 0
+  triggerGameOverOnDestroyed: 0
+  woodCost: 30
   foodCost: 0
-  metalCost: 11
-  maxHp: 100
+  metalCost: 0
+  maxHp: 80
   role: 0
   producedResource: 0
-  productionInterval: 1
-  productionAmount: 1
+  productionInterval: 8
+  productionAmount: 5
   maxWorkers: 3
-  productionPerWorkerPerDay: 2
-  attackRange: 8
-  attackCooldown: 1
-  attackDamage: 10
+  productionPerWorkerPerDay: 3
+  clearTreesInRange: 1
+  treeClearInterval: 8
+  treeClearRange: 30
+  attackRange: 0
+  attackCooldown: 0.1
+  attackDamage: 0
   projectilePrefab: {fileID: 0}
-  projectileSpeed: 12
-  projectileSpawnHeight: 1.5
-  projectileHitDistance: 0.25
+  projectileSpeed: 0.1
+  projectileSpawnHeight: 0
+  projectileHitDistance: 0.05
