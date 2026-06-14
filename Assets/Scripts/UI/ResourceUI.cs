@@ -17,13 +17,16 @@ public class ResourceUI : MonoBehaviour
     public Sprite moonSprite;
 
     [Header("Zagrożenie")]
-    public TextMeshProUGUI threatText;    // "62%"
-    public UnityEngine.UI.Image threatBar; // pasek postępu
+    public TextMeshProUGUI threatText;
+    public UnityEngine.UI.Image threatBar;
 
     void Start()
     {
-        ResourceManager.Instance.OnResourcesChanged.AddListener(UpdateResources);
-        UpdateResources();
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.OnResourcesChanged.AddListener(UpdateResources);
+            UpdateResources();
+        }
     }
 
     void Update()
@@ -34,22 +37,33 @@ public class ResourceUI : MonoBehaviour
 
     void UpdateResources()
     {
-        var r = ResourceManager.Instance;
-        woodText.text = $"{r.wood}";
-        foodText.text = $"{r.food}";
-        metalText.text = $"{r.metal}";
-        populationText.text = $"{r.population}/{r.maxPopulation}";
+        ResourceManager r = ResourceManager.Instance;
+
+        if (r == null)
+            return;
+
+        if (woodText != null)
+            woodText.text = $"{r.wood}";
+
+        if (foodText != null)
+            foodText.text = $"{r.food}";
+
+        if (metalText != null)
+            metalText.text = $"{r.metal}";
+
+        if (populationText != null)
+            populationText.text = $"{r.population}/{r.maxPopulation}  Zajęci: {r.reservedPopulation}  Wolni: {r.FreePopulation}";
     }
 
     void UpdateTime()
     {
-        if (DayManager.Instance == null) return;
+        if (DayManager.Instance == null)
+            return;
 
         int day = DayManager.Instance.currentDay;
         bool isDay = DayManager.Instance.isDay;
         float progress = DayManager.Instance.GetDayProgress();
 
-        // Symulacja godziny 6:00-20:00, noc 20:00-6:00
         float startHour = isDay ? 6f : 20f;
         float endHour = isDay ? 20f : 30f;
         float currentHour = Mathf.Lerp(startHour, endHour, progress) % 24f;
@@ -67,7 +81,8 @@ public class ResourceUI : MonoBehaviour
 
     void UpdateThreat()
     {
-        if (ThreatManager.Instance == null) return;
+        if (ThreatManager.Instance == null)
+            return;
 
         float threat = ThreatManager.Instance.threatLevel;
 
