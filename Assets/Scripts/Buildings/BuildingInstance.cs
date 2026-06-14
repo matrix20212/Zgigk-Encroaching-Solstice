@@ -8,7 +8,11 @@ public class BuildingInstance : MonoBehaviour
     private int currentHp;
     private Vector2Int gridOrigin;
     private GridManager gridManager;
-    private Coroutine roleRoutine;
+
+    private Coroutine productionRoutine;
+    private Coroutine defenseRoutine;
+    private Coroutine treeClearingRoutine;
+
     private bool destroyed = false;
 
     public BuildingData Data => data;
@@ -26,8 +30,8 @@ public class BuildingInstance : MonoBehaviour
 
     private void Start()
     {
-        if (data != null && roleRoutine == null)
-            StartRoleRoutine();
+        if (data != null && productionRoutine == null && defenseRoutine == null && treeClearingRoutine == null)
+            StartRoleRoutines();
 
         EnsureHealthBar();
     }
@@ -60,7 +64,8 @@ public class BuildingInstance : MonoBehaviour
         currentHp = data != null ? Mathf.Max(1, data.maxHp) : 100;
         destroyed = false;
 
-        StartRoleRoutine();
+        StopAllRoleRoutines();
+        StartRoleRoutines();
         EnsureHealthBar();
     }
 
@@ -74,19 +79,35 @@ public class BuildingInstance : MonoBehaviour
         healthBar.Init(this);
     }
 
-    private void StartRoleRoutine()
+    private void StartRoleRoutines()
     {
-        if (roleRoutine != null)
-            StopCoroutine(roleRoutine);
-
         if (data == null)
             return;
 
         if (data.role == BuildingRole.Production)
-            roleRoutine = StartCoroutine(ProductionLoop());
+            productionRoutine = StartCoroutine(ProductionLoop());
 
         if (data.role == BuildingRole.Defensive)
-            roleRoutine = StartCoroutine(DefenseLoop());
+            defenseRoutine = StartCoroutine(DefenseLoop());
+
+        if (data.clearTreesInRange)
+            treeClearingRoutine = StartCoroutine(TreeClearingLoop());
+    }
+
+    private void StopAllRoleRoutines()
+    {
+        if (productionRoutine != null)
+            StopCoroutine(productionRoutine);
+
+        if (defenseRoutine != null)
+            StopCoroutine(defenseRoutine);
+
+        if (treeClearingRoutine != null)
+            StopCoroutine(treeClearingRoutine);
+
+        productionRoutine = null;
+        defenseRoutine = null;
+        treeClearingRoutine = null;
     }
 
     private IEnumerator ProductionLoop()
@@ -116,6 +137,26 @@ public class BuildingInstance : MonoBehaviour
 
         if (ResourceManager.Instance != null)
             ResourceManager.Instance.AddResource(data.producedResource, amount);
+    }
+
+    private IEnumerator TreeClearingLoop()
+    {
+        while (IsAlive)
+        {
+            yield return new WaitForSeconds(Mathf.Max(0.1f, data.treeClearInterval));
+            ClearNearestTree();
+        }
+    }
+
+    private void ClearNearestTree()
+    {
+        if (data == null || !data.clearTreesInRange)
+            return;
+
+        TreeResource tree = TreeResource.GetNearest(transform.position, data.treeClearRange);
+
+        if (tree != null)
+            tree.RemoveFromMap();
     }
 
     private IEnumerator DefenseLoop()
@@ -210,8 +251,7 @@ public class BuildingInstance : MonoBehaviour
         destroyed = true;
         currentHp = 0;
 
-        if (roleRoutine != null)
-            StopCoroutine(roleRoutine);
+        StopAllRoleRoutines();
 
         if (gridManager != null && data != null)
             gridManager.ReleaseArea(gridOrigin, data.GridSize);

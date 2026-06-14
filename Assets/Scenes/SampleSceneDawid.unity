@@ -783,6 +783,8 @@ Transform:
   - {fileID: 1185817659}
   - {fileID: 1660109999}
   - {fileID: 2015608656}
+  - {fileID: 1406348280}
+  - {fileID: 912087031}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &266961568
@@ -2197,6 +2199,53 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &912087030
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 912087031}
+  - component: {fileID: 912087032}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &912087031
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912087030}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 265951176}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &912087032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912087030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0509d42dfac9544f9ceb15931a314df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  gameOverTitle: GAME OVER
+  gameOverMessage: "Ratusz zosta\u0142 zniszczony."
+  pauseOnGameOver: 1
 --- !u!1 &961739749
 GameObject:
   m_ObjectHideFlags: 0
@@ -2361,6 +2410,8 @@ MonoBehaviour:
   rotationSpeed: 3
   pitch: 45
   yaw: 45
+  useCustomStartPosition: 0
+  customStartPosition: {x: 20, y: 50, z: 20}
   useMapBounds: 1
   minBounds: {x: 0, y: 0}
   maxBounds: {x: 500, y: 500}
@@ -2867,6 +2918,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1344899177}
   m_CullTransparentMesh: 1
+--- !u!1 &1406348279
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1406348280}
+  - component: {fileID: 1406348281}
+  m_Layer: 0
+  m_Name: StartingBuildingPlacer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1406348280
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1406348279}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 265951176}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1406348281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1406348279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40c40d1bc5772ac479034ebd63e20911, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StartingBuildingPlacer
+  townHallData: {fileID: 11400000, guid: e19bedc2b948b8a459970fed938cf625, type: 2}
+  gridPosition: {x: 40, y: 40}
+  heightOffset: 0.05
+  moveCameraToBuilding: 1
+  targetCamera: {fileID: 961739752}
+  cameraOffset: {x: 0, y: 12, z: -10}
 --- !u!1 &1437773981
 GameObject:
   m_ObjectHideFlags: 0
@@ -4394,6 +4495,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2015608656}
+  - component: {fileID: 2015608657}
   m_Layer: 0
   m_Name: BuildingSelectionManager
   m_TagString: Untagged
@@ -4416,6 +4518,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 265951176}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2015608657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015608655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5029bd7958086b94f8e5df3785001733, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingSelectionManager
+  targetCamera: {fileID: 961739752}
+  menuUI: {fileID: 0}
+  maxRayDistance: 500
 --- !u!1 &2027588341
 GameObject:
   m_ObjectHideFlags: 0

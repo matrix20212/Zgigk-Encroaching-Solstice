@@ -1,0 +1,32 @@
+newmtl bark
+illum 2
+Ka 0.0960 0.0680 0.0440
+Kd 0.4800 0.3400 0.2200
+Ks 0.0300 0.0300 0.0300
+Ns 10
+map_Kd textures/bark.png
+
+newmtl leaf_green
+illum 2
+Ka 0.0680 0.1240 0.0480
+Kd 0.3400 0.6200 0.2400
+Ks 0.0200 0.0200 0.0200
+Ns 8
+map_Kd textures/leaf_green.png
+
+newmtl leaf_dark
+illum 2
+Ka 0.0480 0.1000 0.0400
+Kd 0.2400 0.5000 0.2000
+Ks 0.0200 0.0200 0.0200
+Ns 8
+map_Kd textures/leaf_darkgreen.png
+
+newmtl needle
+illum 2
+Ka 0.0520 0.0880 0.0400
+Kd 0.2600 0.4400 0.2000
+Ks 0.0200 0.0200 0.0200
+Ns 8
+map_Kd textures/needle_green.png
+

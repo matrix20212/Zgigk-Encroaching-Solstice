@@ -30,6 +30,10 @@ public class BuildingData : ScriptableObject
     public int maxWorkers;
     public int productionPerWorkerPerDay;
 
+    public bool clearTreesInRange = false;
+    public float treeClearInterval = 8f;
+    public float treeClearRange = 8f;
+
     public float attackRange = 8f;
     public float attackCooldown = 1f;
     public int attackDamage = 10;
@@ -51,6 +55,9 @@ public class BuildingData : ScriptableObject
 
         productionInterval = Mathf.Max(0.1f, productionInterval);
         attackCooldown = Mathf.Max(0.1f, attackCooldown);
+
+        treeClearInterval = Mathf.Max(0.1f, treeClearInterval);
+        treeClearRange = Mathf.Max(0f, treeClearRange);
 
         projectileSpeed = Mathf.Max(0.1f, projectileSpeed);
         projectileSpawnHeight = Mathf.Max(0f, projectileSpawnHeight);

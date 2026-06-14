@@ -16,8 +16,11 @@ MonoBehaviour:
   prefab: {fileID: 6693501855712063899, guid: 495d70070bdca3140b5f9b730f2acc0a, type: 3}
   icon: {fileID: 0}
   sizeX: 3
-  sizeZ: 3
-  size: {x: 3, y: 3}
+  sizeZ: 4
+  size: {x: 3, y: 4}
+  continuousPlacement: 0
+  blockManualDelete: 0
+  triggerGameOverOnDestroyed: 0
   woodCost: 50
   foodCost: 0
   metalCost: 11

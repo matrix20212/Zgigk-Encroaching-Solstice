@@ -12,22 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e0e6b597478d83468092f9d6f98b5ff, type: 3}
   m_Name: TownHallData
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: Tartak
-  prefab: {fileID: 6532625109120481640, guid: 911ea62c2bf0d0747bcd11a42a21da8a, type: 3}
+  buildingName: Ratusz
+  prefab: {fileID: 601790674530786280, guid: 89febb840d05681498fbf43a3c5173e0, type: 3}
   icon: {fileID: 0}
-  sizeX: 3
+  sizeX: 4
   sizeZ: 3
-  size: {x: 3, y: 3}
+  size: {x: 4, y: 3}
+  continuousPlacement: 0
+  blockManualDelete: 1
+  triggerGameOverOnDestroyed: 1
   woodCost: 50
   foodCost: 0
   metalCost: 11
   maxHp: 100
   role: 0
   producedResource: 0
-  productionInterval: 1
-  productionAmount: 1
-  maxWorkers: 3
-  productionPerWorkerPerDay: 2
+  productionInterval: 60
+  productionAmount: 10
+  maxWorkers: 0
+  productionPerWorkerPerDay: 0
   attackRange: 8
   attackCooldown: 1
   attackDamage: 10
