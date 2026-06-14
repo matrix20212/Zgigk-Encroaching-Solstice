@@ -134,6 +134,9 @@ public class BuildingManager : MonoBehaviour
 
     Vector2Int GetPlacementSize()
     {
+        if (currentRotation == 0 || currentRotation == 180)
+            return new Vector2Int(selectedBuilding.sizeZ, selectedBuilding.sizeX);
+
         return new Vector2Int(selectedBuilding.sizeX, selectedBuilding.sizeZ);
     }
 
