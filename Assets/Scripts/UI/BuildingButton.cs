@@ -10,9 +10,9 @@ public class BuildingButton : MonoBehaviour
     {
         GetComponent<Button>().onClick.AddListener(OnClick);
 
-        var label = GetComponentInChildren<TextMeshProUGUI>();
-        if (label != null)
-            label.text = $"{buildingData.buildingName}\n🪵{buildingData.woodCost}";
+        //var label = GetComponentInChildren<TextMeshProUGUI>();
+        //if (label != null)
+        //   label.text = $"{buildingData.buildingName}\n🪵{buildingData.woodCost}";
     }
 
     void OnClick()
