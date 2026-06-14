@@ -12,7 +12,9 @@ public class ResourceUI : MonoBehaviour
     [Header("Czas")]
     public TextMeshProUGUI dayText;
     public TextMeshProUGUI timeText;      // "Godzina"
-    public TextMeshProUGUI phaseText;     // "DZIEŃ" / "NOC"
+    public UnityEngine.UI.Image phaseIcon;
+    public Sprite sunSprite;
+    public Sprite moonSprite;
 
     [Header("Zagrożenie")]
     public TextMeshProUGUI threatText;    // "62%"
@@ -57,9 +59,9 @@ public class ResourceUI : MonoBehaviour
 
         if (dayText != null) dayText.text = $"DZIEŃ  {day}";
         if (timeText != null) timeText.text = $"{hour:00}:{minute:00}";
-        if (phaseText != null)
+        if (phaseIcon != null)
         {
-            phaseText.text = isDay ? "DZIEŃ" : "NOC";
+            phaseIcon.sprite = isDay ? sunSprite : moonSprite;
         }
     }
 
