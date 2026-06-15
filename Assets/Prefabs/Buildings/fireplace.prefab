@@ -292,8 +292,8 @@ Light:
   serializedVersion: 13
   m_Type: 2
   m_Color: {r: 1, g: 0.5882353, b: 0.15686275, a: 1}
-  m_Intensity: 15
-  m_Range: 12
+  m_Intensity: 30
+  m_Range: 50
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
@@ -388,8 +388,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CampfireFlicker
   fireLight: {fileID: 1698993236964819601}
-  minIntensity: 13
-  maxIntensity: 16
+  minIntensity: 90
+  maxIntensity: 100
   flickerSpeed: 8
 --- !u!1001 &2878304635411183016
 PrefabInstance:
