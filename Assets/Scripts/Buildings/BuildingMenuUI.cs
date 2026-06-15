@@ -1,4 +1,4 @@
-using TMPro;
+ï»¿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +9,9 @@ public class BuildingMenuUI : MonoBehaviour
     private TextMeshProUGUI titleText;
     private TextMeshProUGUI statsText;
     private RectTransform statsTextRect;
+
+    private Button workerMinusButton;
+    private Button workerPlusButton;
     private Button deleteButton;
     private Button closeButton;
 
@@ -38,8 +41,7 @@ public class BuildingMenuUI : MonoBehaviour
         CreateUiIfNeeded();
 
         panelObject.SetActive(true);
-        deleteButton.gameObject.SetActive(building.CanBeManuallyDeleted);
-
+        UpdateButtons();
         UpdateTexts();
     }
 
@@ -64,6 +66,24 @@ public class BuildingMenuUI : MonoBehaviour
         buildingToDelete.RemoveByPlayer();
     }
 
+    private void DecreaseWorkers()
+    {
+        if (currentBuilding == null)
+            return;
+
+        currentBuilding.DecreaseDesiredWorkers();
+        UpdateTexts();
+    }
+
+    private void IncreaseWorkers()
+    {
+        if (currentBuilding == null)
+            return;
+
+        currentBuilding.IncreaseDesiredWorkers();
+        UpdateTexts();
+    }
+
     private void UpdateTexts()
     {
         if (currentBuilding == null || currentBuilding.Data == null)
@@ -76,11 +96,35 @@ public class BuildingMenuUI : MonoBehaviour
             : data.buildingName;
 
         statsText.text = BuildStatsText(currentBuilding, data);
-        deleteButton.gameObject.SetActive(currentBuilding.CanBeManuallyDeleted);
 
         statsText.ForceMeshUpdate();
-        float height = Mathf.Max(380f, statsText.preferredHeight + 20f);
+        float height = Mathf.Max(360f, statsText.preferredHeight + 20f);
         statsTextRect.sizeDelta = new Vector2(0f, height);
+
+        UpdateButtons();
+    }
+
+    private void UpdateButtons()
+    {
+        if (currentBuilding == null)
+            return;
+
+        bool usesWorkers = currentBuilding.RequiredWorkers > 0;
+
+        if (workerMinusButton != null)
+        {
+            workerMinusButton.gameObject.SetActive(usesWorkers);
+            workerMinusButton.interactable = usesWorkers && currentBuilding.DesiredWorkers > 0;
+        }
+
+        if (workerPlusButton != null)
+        {
+            workerPlusButton.gameObject.SetActive(usesWorkers);
+            workerPlusButton.interactable = usesWorkers && currentBuilding.DesiredWorkers < currentBuilding.RequiredWorkers;
+        }
+
+        if (deleteButton != null)
+            deleteButton.gameObject.SetActive(currentBuilding.CanBeManuallyDeleted);
     }
 
     private string BuildStatsText(BuildingInstance building, BuildingData data)
@@ -117,9 +161,6 @@ public class BuildingMenuUI : MonoBehaviour
         if (data.role == BuildingRole.Defensive)
             text += BuildDefenseText(building, data);
 
-        if (!building.CanBeManuallyDeleted)
-            text += "\n\n<color=#BBBBBB>Nie mo¿na usun¹æ rêcznie</color>";
-
         return text;
     }
 
@@ -130,7 +171,10 @@ public class BuildingMenuUI : MonoBehaviour
         if (building.RequiredWorkers <= 0)
             return text + "\nNie wymaga";
 
-        text += $"\nObsada: {building.AssignedWorkers}/{building.RequiredWorkers}";
+        text += $"\nObsada: {building.AssignedWorkers}/{building.RequiredWorkers} (plan: {building.DesiredWorkers})";
+
+        if (building.MissingDesiredWorkers > 0)
+            text += $"\nBrakuje do celu: {building.MissingDesiredWorkers}";
 
         if (building.AssignedWorkers <= 0)
             text += "\nStatus: stoi";
@@ -138,6 +182,9 @@ public class BuildingMenuUI : MonoBehaviour
             text += $"\nSpowolnienie: x{building.WorkSlowdownMultiplier:0.##}";
         else
             text += "\nSpowolnienie: brak";
+
+        if (ResourceManager.Instance != null)
+            text += $"\nWolni ludzie: {ResourceManager.Instance.FreePopulation}";
 
         return text;
     }
@@ -148,28 +195,12 @@ public class BuildingMenuUI : MonoBehaviour
 
         string text =
             "\n\n<b><color=#FFD36A>Tworzenie ludzi</color></b>" +
-            $"\nIloœæ: {data.populationProductionAmount}";
-
-        if (ResourceManager.Instance != null)
-        {
-            text += $"\nJedzenie: {ResourceManager.Instance.food}";
-
-            float multiplier = ResourceManager.Instance.GetPopulationProductionIntervalMultiplier();
-
-            if (multiplier < 0f)
-                text += $"\nWymaga jedzenia: {ResourceManager.Instance.minimumFoodToCreatePopulation}+";
-            else if (multiplier > 1.05f)
-                text += $"\nTempo: wolne x{multiplier:0.##}";
-            else if (multiplier < 0.95f)
-                text += $"\nTempo: szybkie x{multiplier:0.##}";
-            else
-                text += "\nTempo: normalne";
-        }
+            $"\nIloÅ›Ä‡: {data.populationProductionAmount}";
 
         if (interval < 0f)
-            text += "\nInterwa³: stoi";
+            text += "\nInterwaÅ‚: stoi";
         else
-            text += $"\nInterwa³: {interval:0.##}s";
+            text += $"\nInterwaÅ‚: {interval:0.##}s";
 
         return text;
     }
@@ -184,14 +215,14 @@ public class BuildingMenuUI : MonoBehaviour
         float interval = building.GetAdjustedInterval(data.productionInterval);
 
         string text =
-            "\n\n<b><color=#FFD36A>Produkcja surowców</color></b>" +
+            "\n\n<b><color=#FFD36A>Produkcja surowcÃ³w</color></b>" +
             $"\nTyp: {GetResourceName(data.producedResource)}" +
-            $"\nIloœæ: {data.productionAmount}";
+            $"\nIloÅ›Ä‡: {data.productionAmount}";
 
         if (interval < 0f)
-            text += "\nInterwa³: stoi";
+            text += "\nInterwaÅ‚: stoi";
         else
-            text += $"\nInterwa³: {interval:0.##}s";
+            text += $"\nInterwaÅ‚: {interval:0.##}s";
 
         return text;
     }
@@ -202,12 +233,12 @@ public class BuildingMenuUI : MonoBehaviour
 
         string text =
             "\n\n<b><color=#FFD36A>Wycinka drzew</color></b>" +
-            $"\nZasiêg: {data.treeClearRange:0.##}";
+            $"\nZasiÄ™g: {data.treeClearRange:0.##}";
 
         if (interval < 0f)
-            text += "\nInterwa³: stoi";
+            text += "\nInterwaÅ‚: stoi";
         else
-            text += $"\nInterwa³: {interval:0.##}s";
+            text += $"\nInterwaÅ‚: {interval:0.##}s";
 
         return text;
     }
@@ -218,8 +249,8 @@ public class BuildingMenuUI : MonoBehaviour
 
         string text =
             "\n\n<b><color=#FFD36A>Obrona</color></b>" +
-            $"\nObra¿enia: {data.attackDamage}" +
-            $"\nZasiêg: {data.attackRange:0.##}";
+            $"\nObraÅ¼enia: {data.attackDamage}" +
+            $"\nZasiÄ™g: {data.attackRange:0.##}";
 
         if (cooldown < 0f)
             text += "\nCooldown: stoi";
@@ -277,7 +308,7 @@ public class BuildingMenuUI : MonoBehaviour
         panelRect.anchorMax = new Vector2(1f, 0.5f);
         panelRect.pivot = new Vector2(1f, 0.5f);
         panelRect.anchoredPosition = new Vector2(-20f, 0f);
-        panelRect.sizeDelta = new Vector2(380f, 560f);
+        panelRect.sizeDelta = new Vector2(380f, 590f);
 
         titleText = CreateTitleText(panelObject.transform);
 
@@ -285,7 +316,13 @@ public class BuildingMenuUI : MonoBehaviour
         statsText = scrollRect.content.GetComponent<TextMeshProUGUI>();
         statsTextRect = scrollRect.content;
 
-        deleteButton = CreateButton("DeleteButton", panelObject.transform, "Usuñ budynek", new Vector2(0f, 62f), new Vector2(280f, 42f));
+        workerMinusButton = CreateButton("WorkerMinusButton", panelObject.transform, "Odejmij prac.", new Vector2(-72f, 108f), new Vector2(134f, 38f));
+        workerMinusButton.onClick.AddListener(DecreaseWorkers);
+
+        workerPlusButton = CreateButton("WorkerPlusButton", panelObject.transform, "Dodaj prac.", new Vector2(72f, 108f), new Vector2(134f, 38f));
+        workerPlusButton.onClick.AddListener(IncreaseWorkers);
+
+        deleteButton = CreateButton("DeleteButton", panelObject.transform, "UsuÅ„ budynek", new Vector2(0f, 62f), new Vector2(280f, 42f));
         deleteButton.onClick.AddListener(DeleteCurrentBuilding);
 
         closeButton = CreateButton("CloseButton", panelObject.transform, "Zamknij", new Vector2(0f, 16f), new Vector2(280f, 38f));
@@ -323,7 +360,7 @@ public class BuildingMenuUI : MonoBehaviour
         RectTransform viewportRect = viewportObject.AddComponent<RectTransform>();
         viewportRect.anchorMin = new Vector2(0f, 0f);
         viewportRect.anchorMax = new Vector2(1f, 1f);
-        viewportRect.offsetMin = new Vector2(18f, 110f);
+        viewportRect.offsetMin = new Vector2(18f, 158f);
         viewportRect.offsetMax = new Vector2(-18f, -64f);
 
         Image viewportImage = viewportObject.AddComponent<Image>();
@@ -349,7 +386,7 @@ public class BuildingMenuUI : MonoBehaviour
         contentRect.anchorMax = new Vector2(1f, 1f);
         contentRect.pivot = new Vector2(0.5f, 1f);
         contentRect.anchoredPosition = Vector2.zero;
-        contentRect.sizeDelta = new Vector2(0f, 380f);
+        contentRect.sizeDelta = new Vector2(0f, 360f);
 
         ScrollRect scrollRect = viewportObject.AddComponent<ScrollRect>();
         scrollRect.content = contentRect;
@@ -384,7 +421,7 @@ public class BuildingMenuUI : MonoBehaviour
         textObject.transform.SetParent(buttonObject.transform, false);
 
         TextMeshProUGUI buttonText = textObject.AddComponent<TextMeshProUGUI>();
-        buttonText.fontSize = 18;
+        buttonText.fontSize = 17;
         buttonText.color = Color.white;
         buttonText.text = label;
         buttonText.alignment = TextAlignmentOptions.Center;

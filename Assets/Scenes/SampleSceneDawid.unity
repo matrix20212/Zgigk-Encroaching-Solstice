@@ -7691,7 +7691,7 @@ MonoBehaviour:
   foodForFastPopulationGrowth: 150
   lowFoodPopulationIntervalMultiplier: 2
   highFoodPopulationIntervalMultiplier: 0.5
-  foodConsumptionInterval: 10
+  foodConsumptionInterval: 30
   foodPerPerson: 1
   starvationPopulationLoss: 1
   OnResourcesChanged:

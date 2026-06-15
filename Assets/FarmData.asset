@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e0e6b597478d83468092f9d6f98b5ff, type: 3}
   m_Name: FarmData
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: Farm
+  buildingName: Farma
   prefab: {fileID: 6693501855712063899, guid: 495d70070bdca3140b5f9b730f2acc0a, type: 3}
   icon: {fileID: 0}
   sizeX: 3
@@ -26,11 +26,15 @@ MonoBehaviour:
   metalCost: 0
   maxHp: 60
   role: 0
+  maxWorkers: 3
   producedResource: 1
   productionInterval: 10
   productionAmount: 8
-  maxWorkers: 3
   productionPerWorkerPerDay: 4
+  populationCapacityBonus: 0
+  producesPopulation: 0
+  populationProductionInterval: 10
+  populationProductionAmount: 1
   clearTreesInRange: 0
   treeClearInterval: 0.1
   treeClearRange: 0
@@ -41,3 +45,4 @@ MonoBehaviour:
   projectileSpeed: 0.1
   projectileSpawnHeight: 0
   projectileHitDistance: 0.05
+  shootSound: {fileID: 0}

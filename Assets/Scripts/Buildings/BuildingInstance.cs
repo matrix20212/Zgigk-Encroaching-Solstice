@@ -16,6 +16,7 @@ public class BuildingInstance : MonoBehaviour
 
     private bool destroyed = false;
     private int assignedWorkers = 0;
+    private int desiredWorkers = 0;
     private int appliedPopulationCapacityBonus = 0;
 
     public BuildingData Data => data;
@@ -27,6 +28,8 @@ public class BuildingInstance : MonoBehaviour
 
     public int RequiredWorkers => data != null ? Mathf.Max(0, data.maxWorkers) : 0;
     public int AssignedWorkers => assignedWorkers;
+    public int DesiredWorkers => desiredWorkers;
+    public int MissingDesiredWorkers => Mathf.Max(0, desiredWorkers - assignedWorkers);
 
     public float WorkerEfficiency
     {
@@ -96,6 +99,7 @@ public class BuildingInstance : MonoBehaviour
         currentHp = data != null ? Mathf.Max(1, data.maxHp) : 100;
         destroyed = false;
         assignedWorkers = 0;
+        desiredWorkers = RequiredWorkers;
         appliedPopulationCapacityBonus = 0;
 
         RegisterInResourceManager();
@@ -108,6 +112,29 @@ public class BuildingInstance : MonoBehaviour
     public void SetAssignedWorkers(int amount)
     {
         assignedWorkers = Mathf.Clamp(amount, 0, RequiredWorkers);
+    }
+
+    public void SetDesiredWorkers(int amount)
+    {
+        int newValue = Mathf.Clamp(amount, 0, RequiredWorkers);
+
+        if (desiredWorkers == newValue)
+            return;
+
+        desiredWorkers = newValue;
+
+        if (ResourceManager.Instance != null)
+            ResourceManager.Instance.RebalanceWorkers();
+    }
+
+    public void IncreaseDesiredWorkers()
+    {
+        SetDesiredWorkers(desiredWorkers + 1);
+    }
+
+    public void DecreaseDesiredWorkers()
+    {
+        SetDesiredWorkers(desiredWorkers - 1);
     }
 
     public float GetAdjustedInterval(float baseInterval)
@@ -164,6 +191,7 @@ public class BuildingInstance : MonoBehaviour
         }
 
         assignedWorkers = 0;
+        desiredWorkers = 0;
     }
 
     private void EnsureHealthBar()
@@ -422,6 +450,7 @@ public class BuildingInstance : MonoBehaviour
 
         Destroy(gameObject);
     }
+
     private void KillAssignedWorkers()
     {
         if (ResourceManager.Instance == null)
@@ -441,5 +470,6 @@ public class BuildingInstance : MonoBehaviour
         }
 
         assignedWorkers = 0;
+        desiredWorkers = 0;
     }
 }

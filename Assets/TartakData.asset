@@ -26,11 +26,15 @@ MonoBehaviour:
   metalCost: 0
   maxHp: 80
   role: 0
+  maxWorkers: 2
   producedResource: 0
   productionInterval: 8
   productionAmount: 5
-  maxWorkers: 3
   productionPerWorkerPerDay: 3
+  populationCapacityBonus: 0
+  producesPopulation: 0
+  populationProductionInterval: 10
+  populationProductionAmount: 1
   clearTreesInRange: 1
   treeClearInterval: 8
   treeClearRange: 30
@@ -41,3 +45,4 @@ MonoBehaviour:
   projectileSpeed: 0.1
   projectileSpawnHeight: 0
   projectileHitDistance: 0.05
+  shootSound: {fileID: 0}

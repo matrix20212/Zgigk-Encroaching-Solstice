@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e0e6b597478d83468092f9d6f98b5ff, type: 3}
   m_Name: Wall
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: "\u015Aciana"
+  buildingName: Palisada
   prefab: {fileID: 4988801499672577695, guid: 03047e74f6b7a32418952cdbeac62c46, type: 3}
   icon: {fileID: 0}
   sizeX: 1

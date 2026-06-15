@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e0e6b597478d83468092f9d6f98b5ff, type: 3}
   m_Name: TowerData
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: Tower
+  buildingName: "Wie\u017Ca"
   prefab: {fileID: 4421584974866907322, guid: f79b9c6b69840dc45a1716093dc4f11a, type: 3}
   icon: {fileID: 0}
   sizeX: 1
@@ -26,11 +26,15 @@ MonoBehaviour:
   metalCost: 30
   maxHp: 200
   role: 1
+  maxWorkers: 1
   producedResource: 0
   productionInterval: 0.1
   productionAmount: 0
-  maxWorkers: 0
   productionPerWorkerPerDay: 0
+  populationCapacityBonus: 0
+  producesPopulation: 0
+  populationProductionInterval: 10
+  populationProductionAmount: 1
   clearTreesInRange: 0
   treeClearInterval: 0.1
   treeClearRange: 0

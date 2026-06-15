@@ -35,6 +35,7 @@ public class ResourceManager : MonoBehaviour
     private Coroutine foodRoutine;
 
     public int FreePopulation => Mathf.Max(0, population - reservedPopulation);
+    public int DesiredReservedPopulation => GetDesiredReservedPopulation();
 
     void Awake()
     {
@@ -229,8 +230,8 @@ public class ResourceManager : MonoBehaviour
 
         foreach (BuildingInstance building in workerBuildings)
         {
-            int required = building.RequiredWorkers;
-            int assigned = Mathf.Min(required, remainingPeople);
+            int wanted = building.DesiredWorkers;
+            int assigned = Mathf.Min(wanted, remainingPeople);
 
             building.SetAssignedWorkers(assigned);
 
@@ -242,6 +243,21 @@ public class ResourceManager : MonoBehaviour
         }
 
         OnResourcesChanged?.Invoke();
+    }
+
+    private int GetDesiredReservedPopulation()
+    {
+        int desired = 0;
+
+        for (int i = workerBuildings.Count - 1; i >= 0; i--)
+        {
+            if (workerBuildings[i] == null || !workerBuildings[i].IsAlive)
+                continue;
+
+            desired += workerBuildings[i].DesiredWorkers;
+        }
+
+        return desired;
     }
 
     private IEnumerator FoodConsumptionLoop()
@@ -281,6 +297,7 @@ public class ResourceManager : MonoBehaviour
 
         OnResourcesChanged?.Invoke();
     }
+
     public void KillPopulation(int amount)
     {
         if (amount <= 0)
