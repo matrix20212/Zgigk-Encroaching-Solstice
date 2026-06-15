@@ -40,7 +40,7 @@ MonoBehaviour:
   treeClearRange: 0
   attackRange: 15
   attackCooldown: 1.5
-  attackDamage: 10
+  attackDamage: 5
   projectilePrefab: {fileID: 0}
   projectileSpeed: 14
   projectileSpawnHeight: 1.5

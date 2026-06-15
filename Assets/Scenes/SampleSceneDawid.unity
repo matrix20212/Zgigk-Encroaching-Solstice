@@ -7682,7 +7682,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResourceManager
   wood: 200
   food: 50
-  metal: 20
+  metal: 35
   population: 10
   maxPopulation: 30
   reservedPopulation: 0
