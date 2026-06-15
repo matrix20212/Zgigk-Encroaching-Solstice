@@ -21,16 +21,20 @@ MonoBehaviour:
   continuousPlacement: 0
   blockManualDelete: 0
   triggerGameOverOnDestroyed: 0
-  woodCost: 15
+  woodCost: 5
   foodCost: 0
   metalCost: 0
   maxHp: 50
   role: 0
+  maxWorkers: 0
   producedResource: 0
   productionInterval: 0.1
   productionAmount: 0
-  maxWorkers: 0
   productionPerWorkerPerDay: 0
+  populationCapacityBonus: 0
+  producesPopulation: 0
+  populationProductionInterval: 10
+  populationProductionAmount: 1
   clearTreesInRange: 0
   treeClearInterval: 8
   treeClearRange: 8
@@ -41,3 +45,4 @@ MonoBehaviour:
   projectileSpeed: 0.1
   projectileSpawnHeight: 0
   projectileHitDistance: 0.05
+  shootSound: {fileID: 0}

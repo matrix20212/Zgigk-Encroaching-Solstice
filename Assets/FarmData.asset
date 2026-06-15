@@ -29,7 +29,7 @@ MonoBehaviour:
   maxWorkers: 3
   producedResource: 1
   productionInterval: 10
-  productionAmount: 8
+  productionAmount: 4
   productionPerWorkerPerDay: 4
   populationCapacityBonus: 0
   producesPopulation: 0
